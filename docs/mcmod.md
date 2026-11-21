@@ -27,7 +27,7 @@
 ## 版本
 
 * **1.21.1** + NeoForge 21.1.x + AE2 19.2.x
-* **1.20.1** + Forge 47.x + AE2 15.2.x
+* **1.20.1** + Forge 47.x + AE2 15.4.x
 
 MIT 协议，源码：https://github.com/furina1013-love/ae2_split_cpu
 
