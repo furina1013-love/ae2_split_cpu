@@ -5,16 +5,26 @@ plugins {
 }
 
 repositories {
-    // maven.neoforged.net 在这台机器上被 DNS 污染 + 出口白名单拦截，改用 BMCLAPI 镜像（内容一致）
-    maven { url = 'https://bmclapi2.bangbang93.com/maven' }
-    // net.neoforged:minecraft-dependencies:1.21.1 各镜像都没有，按 Mojang version manifest 本地重建的 pom
-    maven { url = 'file:///root/localmaven' }
+    // NeoForge 官方仓；某些网络环境会需要镜像（本机由 ~/.gradle/init.d 的全局脚本自动接管）
+    maven { url = 'https://maven.neoforged.net/releases' }
+    // AE2（未在 libs/ 放 jar 时从这里解析）
+    maven { url = 'https://api.modrinth.com/maven' }
     mavenCentral()
 }
 
+// AE2 是运行时由服务端提供的依赖，只参与编译。
+// 优先用 libs/ 里的本地 jar（离线可用）；没有则从 Modrinth Maven 解析。
+// 自定义路径：./gradlew build -Pae2Jar=/path/to/appliedenergistics2-x.y.z.jar
+def ae2Jar = project.findProperty('ae2Jar') != null
+        ? file(project.findProperty('ae2Jar'))
+        : file("libs/appliedenergistics2-${ae2_version}.jar")
+
 dependencies {
-    // AE2 由服务端提供，jar 不打进去；开发期从本地 jar 编译
-    compileOnly files('/root/libs1211/appliedenergistics2-19.2.19.jar')
+    if (ae2Jar.exists()) {
+        compileOnly files(ae2Jar)
+    } else {
+        compileOnly "maven.modrinth:ae2:${ae2_version}"
+    }
     // JEI 仅编译期可选依赖（本模组不注册 JEI 插件，配方由数据驱动，JEI 自动显示）
 }
 
