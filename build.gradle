@@ -1,0 +1,96 @@
+plugins {
+    id 'java-library'
+    id 'net.neoforged.moddev' version '2.0.144'
+    id 'idea'
+}
+
+repositories {
+    // maven.neoforged.net 在这台机器上被 DNS 污染 + 出口白名单拦截，改用 BMCLAPI 镜像（内容一致）
+    maven { url = 'https://bmclapi2.bangbang93.com/maven' }
+    // net.neoforged:minecraft-dependencies:1.21.1 各镜像都没有，按 Mojang version manifest 本地重建的 pom
+    maven { url = 'file:///root/localmaven' }
+    mavenCentral()
+}
+
+dependencies {
+    // AE2 由服务端提供，jar 不打进去；开发期从本地 jar 编译
+    compileOnly files('/root/libs1211/appliedenergistics2-19.2.19.jar')
+    // JEI 仅编译期可选依赖（本模组不注册 JEI 插件，配方由数据驱动，JEI 自动显示）
+}
+
+version = mod_version
+group = mod_group_id
+
+base {
+    archivesName = mod_id
+}
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+
+neoForge {
+    version = project.neo_version
+    runs {
+        client {
+            client()
+        }
+        server {
+            server()
+            programArgument '--nogui'
+        }
+        data {
+            data()
+        }
+    }
+    mods {
+        "${mod_id}" {
+            sourceSet sourceSets.main
+        }
+    }
+}
+
+// runData 输出挂进资源源集，随 jar 打包（勿手动改 generated 文件）。
+sourceSets.main.resources { srcDir 'src/generated/resources' }
+
+// 只在 neoforge.mods.toml 上做占位符展开，其它资源文件原样复制。
+// 注意：expand 底层是 Groovy 模板引擎，会把它看到的任何“美元号+花括号”片段
+// 当作表达式求值——资源文件里出现非占位符的该类写法会让构建以模板解析失败报错。
+processResources {
+    filteringCharset = 'UTF-8'
+    inputs.property('mod_id', mod_id)
+    inputs.property('mod_name', mod_name)
+    inputs.property('mod_version', mod_version)
+    inputs.property('mod_authors', mod_authors)
+    inputs.property('mod_license', mod_license)
+    inputs.property('mod_description', mod_description)
+    inputs.property('minecraft_version_range', minecraft_version_range)
+    inputs.property('neo_version_range', neo_version_range)
+    inputs.property('ae2_version_range', ae2_version_range)
+    def templateValues = [
+            mod_id                 : mod_id,
+            mod_name               : mod_name,
+            mod_version            : mod_version,
+            mod_authors            : mod_authors,
+            mod_license            : mod_license,
+            mod_description        : mod_description,
+            minecraft_version_range: minecraft_version_range,
+            neo_version_range      : neo_version_range,
+            ae2_version_range      : ae2_version_range
+    ]
+    filesMatching('META-INF/neoforge.mods.toml') {
+        expand templateValues
+    }
+}
+
+jar {
+    manifest {
+        attributes([
+                "Specification-Title"     : mod_id,
+                "Specification-Vendor"    : mod_authors,
+                "Specification-Version"   : "1",
+                "Implementation-Title"    : project.name,
+                "Implementation-Version"  : project.jar.archiveVersion,
+                "Implementation-Vendor"   : mod_authors,
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+        ])
+    }
+}
