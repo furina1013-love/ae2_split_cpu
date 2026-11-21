@@ -13,7 +13,7 @@
 * **并行方案**：EQUAL（默认，平均分配）、PROPORTIONAL（按订单字节比例）、ALL、FIXED，另可设下限。
 * **兼容**：JEI（可选依赖）、模组配置界面、其它 AE2 附属的 CPU（子 CPU 就是标准 `CraftingCPUCluster`，走 AE2 原生流程）。
 
-## 配置（config/ae2_split_cpu-common.toml）
+## 配置（config/ae2-split-cpu-common.toml）
 
 | 配置项 | 默认 | 说明 |
 | --- | --- | --- |
