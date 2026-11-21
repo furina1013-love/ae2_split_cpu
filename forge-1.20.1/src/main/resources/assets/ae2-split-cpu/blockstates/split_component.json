@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "formed=false": {
+      "model": "ae2-split-cpu:block/split_component"
+    },
+    "formed=true": {
+      "model": "ae2-split-cpu:block/split_component"
+    }
+  }
+}

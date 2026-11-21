@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "P": {
+      "item": "ae2:calculation_processor"
+    },
+    "L": {
+      "item": "ae2:logic_processor"
+    },
+    "F": {
+      "item": "ae2:fluix_crystal"
+    },
+    "E": {
+      "item": "ae2:engineering_processor"
+    },
+    "R": {
+      "item": "minecraft:redstone"
+    }
+  },
+  "pattern": [
+    "PLP",
+    "LFL",
+    "ERE"
+  ],
+  "result": {
+    "count": 1,
+    "id": "ae2-split-cpu:split_component"
+  }
+}

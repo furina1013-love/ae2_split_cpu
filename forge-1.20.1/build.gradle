@@ -1,0 +1,68 @@
+plugins {
+    // 钉选 6.0.54（MDK 写 [6.0,6.2)）；版本更新时同步 versions.js 矩阵。
+    id 'net.minecraftforge.gradle' version '6.0.54'
+    id 'eclipse'
+    id 'idea'
+    id 'maven-publish'
+}
+
+version = "1.1.0"
+group = "cn.furina.ae2split"
+archivesBaseName = "ae2-split-cpu"
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
+minecraft {
+    mappings channel: mapping_channel, version: mapping_version
+    copyIdeResources = true
+    runs {
+        client {
+            workingDirectory project.file('run')
+        }
+        server {
+            workingDirectory project.file('run')
+        }
+        gameTestServer {
+            workingDirectory project.file('run')
+        }
+        data {
+            workingDirectory project.file('run')
+            args '--mod', mod_id, '--all'
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+    // AE2 jar 放本地 libs/（CurseForge 下载的官方 jar），用 flatDir 才能走 fg.deobf。
+    flatDir { dirs 'libs' }
+}
+
+dependencies {
+    minecraft "net.minecraftforge:forge:1.20.1-47.3.0"
+    // AE2 15.4.12（1.20.1 Forge），来自 CurseForge fileId 9357405，仅编译期依赖。
+    compileOnly fg.deobf('local:appliedenergistics2-forge:15.4.12')
+}
+
+// mods.toml / pack.mcmeta 里的 ${mod_id} 等由 Gradle expand 替换（与 scaffold 的 {{}} 不冲突）。
+def replaceProperties = [
+    minecraft_version: "1.20.1", forge_version: "47.3.0",
+    mod_id: "ae2-split-cpu", mod_name: mod_name, mod_license: mod_license,
+    mod_version: mod_version, mod_authors: mod_authors, mod_description: mod_description,
+]
+
+processResources {
+    filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) { expand replaceProperties }
+}
+
+jar {
+    manifest {
+        attributes([
+            "Specification-Title": mod_id,
+            "Implementation-Version": project.version,
+            // Forge 1.16+ 通过 MANIFEST 的 MixinConfigs 属性加载 mixin 配置。
+            "MixinConfigs": "ae2split.mixins.json",
+        ])
+    }
+    finalizedBy 'reobfJar'
+}

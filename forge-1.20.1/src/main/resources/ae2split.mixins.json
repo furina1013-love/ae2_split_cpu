@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "cn.furina.ae2split.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "CraftingCPUClusterMixin",
+    "CraftingServiceMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

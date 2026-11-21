@@ -144,6 +144,10 @@ public final class SplitCpuManager {
 
         try {
             int availThreads = Math.max(0, parent.getCoProcessors());
+            // 并行已被前面的子 CPU 瓜分完时不再分裂：0 并行的子 CPU 接单后会一直卡住。
+            if (availThreads < 1) {
+                return null;
+            }
             int threads = allocateThreads(availThreads, plan.bytes(), remaining, used, maxSplits);
 
             int index = used;

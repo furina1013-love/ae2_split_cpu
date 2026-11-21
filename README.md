@@ -4,11 +4,12 @@
 
 **让 AE2 的合成 CPU 在下单时分裂 —— 一个 CPU，同时压多张订单。**
 
-![Minecraft](https://img.shields.io/badge/Minecraft-1.21.1-62B47A?style=flat-square)
-![NeoForge](https://img.shields.io/badge/NeoForge-21.1.249-EA8C1E?style=flat-square)
-![AE2](https://img.shields.io/badge/AE2-19.2.x-2E7CC4?style=flat-square)
+![Minecraft](https://img.shields.io/badge/Minecraft-1.20.1%20%7C%201.21.1-62B47A?style=flat-square)
+![NeoForge](https://img.shields.io/badge/NeoForge-21.1.x-EA8C1E?style=flat-square)
+![Forge](https://img.shields.io/badge/Forge-47.x-DA6A1E?style=flat-square)
+![AE2](https://img.shields.io/badge/AE2-15.4.x%20%7C%2019.2.x-2E7CC4?style=flat-square)
 ![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square)
-![Release](https://img.shields.io/badge/Release-v1.0.1-success?style=flat-square)
+![Release](https://img.shields.io/badge/Release-v1.1.0-success?style=flat-square)
 
 [下载](https://github.com/furina1013-love/ae2_split_cpu/releases/latest) · [配置](#配置) · [从源码构建](#从源码构建) · [原理](#实现原理)
 
@@ -52,16 +53,20 @@ AE2 终端 → CPU 状态页
 
 ## 安装
 
-1. 准备 **Minecraft 1.21.1** + **NeoForge 21.1.x**（开发/验证基准 21.1.249）
-2. 安装 **Applied Energistics 2 19.2.x**（必须，模组不内置）
-3. 把 `ae2_split_cpu-1.0.0.jar` 丢进 `mods/` 文件夹
-4. 启动后生成配置：`config/ae2_split_cpu-common.toml`
+| 游戏版本 | 加载器 | 需要的 AE2 | 下载的 jar |
+|---|---|---|---|
+| **1.21.1** | NeoForge 21.1.x | AE2 **19.2.x** | `ae2-split-cpu-1.1.0-neoforge-1.21.1.jar` |
+| **1.20.1** | Forge 47.x | AE2 **15.4.x** | `ae2-split-cpu-1.1.0-forge-1.20.1.jar` |
+
+1. 按上表下载对应版本的 jar，丢进 `mods/` 文件夹
+2. 安装对应版本的 **Applied Energistics 2**（必须，模组不内置）
+3. 启动后生成配置：`config/ae2-split-cpu-common.toml`
 
 单人与服务端都可以用；服务端装了客户端也要装（含方块与网络逻辑）。
 
 ## 分裂元件
 
-`ae2_split_cpu:split_component`（中文名「分裂元件」）—— 一个可以放进 CPU 多方块的方块，
+`ae2-split-cpu:split_component`（中文名「分裂元件」）—— 一个可以放进 CPU 多方块的方块，
 本身 **0 字节 / 0 并行**，只作标记：CPU 结构里有它，这台 CPU 才允许分裂。
 
 默认 **需要** 安装（`requireSplitComponent = true`）。合成：
@@ -79,7 +84,7 @@ E R E        E = 工程处理器  (ae2:engineering_processor)
 
 ## 配置
 
-`config/ae2_split_cpu-common.toml`（标准 NeoForge COMMON 配置，可用任何配置编辑器/命令修改）
+`config/ae2-split-cpu-common.toml`（标准 NeoForge COMMON 配置，可用任何配置编辑器/命令修改）
 
 ```toml
 [split]
@@ -89,8 +94,8 @@ E R E        E = 工程处理器  (ae2:engineering_processor)
     requireSplitComponent = true
     # 每个主 CPU 最多分裂出多少个子 CPU（不含主 CPU），0 = 禁止
     maxSplits = 3
-    # 并行分配方案：PROPORTIONAL / EQUAL / ALL / FIXED
-    parallelScheme = "PROPORTIONAL"
+    # 并行分配方案：EQUAL(默认) / PROPORTIONAL / ALL / FIXED
+    parallelScheme = "EQUAL"
     # FIXED 方案下每个子 CPU 的固定并行数
     fixedParallel = 1
     # 任何方案下子 CPU 的并行下限
@@ -102,7 +107,7 @@ E R E        E = 工程处理器  (ae2:engineering_processor)
 | `enableSplitting` | `true` | 总开关 |
 | `requireSplitComponent` | `true` | 是否必须装分裂元件 |
 | `maxSplits` | `3` | 子 CPU 上限（不含主 CPU），0–64 |
-| `parallelScheme` | `PROPORTIONAL` | 并行分配方案 |
+| `parallelScheme` | `EQUAL` | 并行分配方案 |
 | `fixedParallel` | `1` | FIXED 方案的固定并行 |
 | `minParallel` | `1` | 任何方案的并行下限 |
 
@@ -110,12 +115,13 @@ E R E        E = 工程处理器  (ae2:engineering_processor)
 
 | 方案 | 子 CPU 拿到的并行 |
 |---|---|
-| `PROPORTIONAL`（默认） | `floor(剩余并行 × 订单字节 ÷ 剩余字节)` |
-| `EQUAL` | `ceil(剩余并行 ÷ 剩余分裂名额)` |
+| `EQUAL`（默认） | `ceil(剩余并行 ÷ 剩余分裂名额)`，保证每张单分到差不多的并行 |
+| `PROPORTIONAL` | `floor(剩余并行 × 订单字节 ÷ 剩余字节)`，大单多给、小单少给 |
 | `ALL` | 剩余并行全部给它 |
 | `FIXED` | 固定 `fixedParallel` |
 
-> 例：8 并行 / 64K 字节，来了一张 16K 的订单 → `floor(8 × 16K ÷ 64K) = 2` 并行。
+> 例：8 并行、上限 3，来第一张单 → `ceil(8 ÷ 3) = 3` 并行；第二张 → `ceil(5 ÷ 2) = 3`；第三张 → 2。
+> 所有方案分配出去的总并行不会超过主 CPU 实际拥有量；剩余并行为 0 时不再分裂（避免子 CPU 接单后卡住）。
 
 ## 兼容性
 
@@ -136,7 +142,7 @@ E R E        E = 工程处理器  (ae2:engineering_processor)
 #    b. 或构建时传路径：-Pae2Jar=/path/to/appliedenergistics2-19.2.19.jar
 # 2) 构建
 ./gradlew build
-# 产物：build/libs/ae2_split_cpu-1.0.0.jar
+# 产物：build/libs/ae2-split-cpu-1.1.0.jar
 ```
 
 不想自己编译？直接用 [Releases](https://github.com/furina1013-love/ae2_split_cpu/releases/latest) 里的 jar。
