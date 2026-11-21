@@ -13,6 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import appeng.me.cluster.implementations.CraftingCPUCluster;
 import appeng.me.service.CraftingService;
 
+import cn.furina.ae2split.split.SplitCpuAccess;
 import cn.furina.ae2split.split.SplitCpuManager;
 
 /**

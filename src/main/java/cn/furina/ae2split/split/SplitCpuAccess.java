@@ -1,4 +1,4 @@
-package cn.furina.ae2split.mixin;
+package cn.furina.ae2split.split;
 
 import appeng.me.cluster.implementations.CraftingCPUCluster;
 

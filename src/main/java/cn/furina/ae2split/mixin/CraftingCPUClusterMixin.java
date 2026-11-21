@@ -23,6 +23,7 @@ import appeng.api.networking.security.IActionSource;
 import appeng.api.stacks.GenericStack;
 import appeng.me.cluster.implementations.CraftingCPUCluster;
 
+import cn.furina.ae2split.split.SplitCpuHandle;
 import cn.furina.ae2split.split.SplitCpuManager;
 
 /**

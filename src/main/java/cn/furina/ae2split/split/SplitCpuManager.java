@@ -26,8 +26,6 @@ import appeng.me.service.CraftingService;
 
 import cn.furina.ae2split.AE2SplitConfig;
 import cn.furina.ae2split.content.SplitComponentBlock;
-import cn.furina.ae2split.mixin.SplitCpuAccess;
-import cn.furina.ae2split.mixin.SplitCpuHandle;
 
 /**
  * 子 CPU 注册表与生命周期管理器（全部静态方法）。
