@@ -8,7 +8,7 @@
 ![NeoForge](https://img.shields.io/badge/NeoForge-21.1.249-EA8C1E?style=flat-square)
 ![AE2](https://img.shields.io/badge/AE2-19.2.x-2E7CC4?style=flat-square)
 ![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square)
-![Release](https://img.shields.io/badge/Release-v1.0.0-success?style=flat-square)
+![Release](https://img.shields.io/badge/Release-v1.0.1-success?style=flat-square)
 
 [下载](https://github.com/furina1013-love/ae2_split_cpu/releases/latest) · [配置](#配置) · [从源码构建](#从源码构建) · [原理](#实现原理)
 
