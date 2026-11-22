@@ -39,7 +39,7 @@ public final class AE2SplitBlocks {
     public static final SplitComponentType SPLIT_COMPONENT_TYPE = new SplitComponentType();
 
     /**
-     * 分裂元件方块：id = ae2-split-cpu:split_component。
+     * 分裂元件方块：id = ae2_split_cpu:split_component。
      * 硬度/抗爆/音效按 PLAM 要求设置，并补上 AE2 金属方块常用的 mapColor 与 forceSolidOn。
      */
     public static final DeferredBlock<SplitComponentBlock> SPLIT_COMPONENT = BLOCKS.registerBlock(
@@ -52,11 +52,11 @@ public final class AE2SplitBlocks {
                     .mapColor(MapColor.METAL)
                     .forceSolidOn());
 
-    /** 方块对应的 BlockItem：id = ae2-split-cpu:split_component。 */
+    /** 方块对应的 BlockItem：id = ae2_split_cpu:split_component。 */
     public static final DeferredItem<BlockItem> SPLIT_COMPONENT_ITEM = ITEMS.registerSimpleBlockItem(SPLIT_COMPONENT);
 
     /**
-     * 方块实体类型：id = ae2-split-cpu:split_component，实例类型为 AE2 的 CraftingBlockEntity。
+     * 方块实体类型：id = ae2_split_cpu:split_component，实例类型为 AE2 的 CraftingBlockEntity。
      * 注意这里的自引用：Builder 的 supplier 需要一个"类型实例"，而类型只在 build() 之后才存在，
      * 所以先用 AtomicReference 占位，build() 完毕后再回填（与 AE2 官方注册写法一致）。
      * 同时把 BlockEntityType 反向注入方块的 newBlockEntity 工厂（setBlockEntity）。

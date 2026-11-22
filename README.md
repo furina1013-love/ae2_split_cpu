@@ -9,7 +9,7 @@
 ![Forge](https://img.shields.io/badge/Forge-47.x-DA6A1E?style=flat-square)
 ![AE2](https://img.shields.io/badge/AE2-15.4.x%20%7C%2019.2.x-2E7CC4?style=flat-square)
 ![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square)
-![Release](https://img.shields.io/badge/Release-v1.1.0-success?style=flat-square)
+![Release](https://img.shields.io/badge/Release-v1.1.1-success?style=flat-square)
 
 [下载](https://github.com/furina1013-love/ae2_split_cpu/releases/latest) · [配置](#配置) · [从源码构建](#从源码构建) · [原理](#实现原理)
 
@@ -55,18 +55,20 @@ AE2 终端 → CPU 状态页
 
 | 游戏版本 | 加载器 | 需要的 AE2 | 下载的 jar |
 |---|---|---|---|
-| **1.21.1** | NeoForge 21.1.x | AE2 **19.2.x** | `ae2-split-cpu-1.1.0-neoforge-1.21.1.jar` |
-| **1.20.1** | Forge 47.x | AE2 **15.4.x** | `ae2-split-cpu-1.1.0-forge-1.20.1.jar` |
+| **1.21.1** | NeoForge 21.1.x | AE2 **19.2.x** | `ae2-split-cpu-1.1.1-neoforge-1.21.1.jar` |
+| **1.20.1** | Forge 47.x | AE2 **15.4.x** | `ae2-split-cpu-1.1.1-forge-1.20.1.jar` |
 
 1. 按上表下载对应版本的 jar，丢进 `mods/` 文件夹
 2. 安装对应版本的 **Applied Energistics 2**（必须，模组不内置）
-3. 启动后生成配置：`config/ae2-split-cpu-common.toml`
+3. 启动后生成配置：`config/ae2_split_cpu-common.toml`
+
+> modid 固定为 `ae2_split_cpu`（下划线）。加载器只接受 `^[a-z][a-z0-9_]{1,63}$`，**带连字符的 id 会直接报「Invalid modId」**，所以 jar 文件名用连字符、注册名用下划线。
 
 单人与服务端都可以用；服务端装了客户端也要装（含方块与网络逻辑）。
 
 ## 分裂元件
 
-`ae2-split-cpu:split_component`（中文名「分裂元件」）—— 一个可以放进 CPU 多方块的方块，
+`ae2_split_cpu:split_component`（中文名「分裂元件」）—— 一个可以放进 CPU 多方块的方块，
 本身 **0 字节 / 0 并行**，只作标记：CPU 结构里有它，这台 CPU 才允许分裂。
 
 默认 **需要** 安装（`requireSplitComponent = true`）。合成：
@@ -84,7 +86,7 @@ E R E        E = 工程处理器  (ae2:engineering_processor)
 
 ## 配置
 
-`config/ae2-split-cpu-common.toml`（标准 NeoForge COMMON 配置，可用任何配置编辑器/命令修改）
+`config/ae2_split_cpu-common.toml`（标准 NeoForge COMMON 配置，可用任何配置编辑器/命令修改）
 
 ```toml
 [split]

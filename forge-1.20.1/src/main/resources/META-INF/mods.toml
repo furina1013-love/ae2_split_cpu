@@ -4,8 +4,8 @@ license="MIT"
 issueTrackerURL="https://github.com/furina1013-love/ae2_split_cpu/issues"
 
 [[mods]]
-modId="ae2-split-cpu"
-version="1.1.0"
+modId="ae2_split_cpu"
+version="1.1.1"
 displayName="AE2 Split CPU"
 authors="furina1013"
 description='''
@@ -15,28 +15,28 @@ master CPU and restored when the job finishes. Add the Split Component block to 
 to allow it to split.
 '''
 
-[[dependencies.ae2-split-cpu]]
+[[dependencies.ae2_split_cpu]]
     modId="forge"
     mandatory=true
     versionRange="[47,)"
     ordering="NONE"
     side="BOTH"
 
-[[dependencies.ae2-split-cpu]]
+[[dependencies.ae2_split_cpu]]
     modId="minecraft"
     mandatory=true
     versionRange="[1.20.1,1.21)"
     ordering="NONE"
     side="BOTH"
 
-[[dependencies.ae2-split-cpu]]
+[[dependencies.ae2_split_cpu]]
     modId="ae2"
     mandatory=true
     versionRange="[15.4,16)"
     ordering="AFTER"
     side="BOTH"
 
-[[dependencies.ae2-split-cpu]]
+[[dependencies.ae2_split_cpu]]
     modId="jei"
     mandatory=false
     versionRange="[15,)"

@@ -16,12 +16,12 @@ import org.slf4j.Logger;
 
 /**
  * 模组入口（Forge 1.20.1）：注册方块/物品/方块实体类型/创造模式标签页，并挂上 COMMON 配置
- * （config/ae2-split-cpu-common.toml）。分裂算法全部在 split/ 与 mixin/ 包里。
+ * （config/ae2_split_cpu-common.toml）。分裂算法全部在 split/ 与 mixin/ 包里。
  */
 @Mod(Ae2SplitCpu.MODID)
 public class Ae2SplitCpu {
     /** 必须与 gradle.properties 的 mod_id、mods.toml 的 modId 完全一致。 */
-    public static final String MODID = "ae2-split-cpu";
+    public static final String MODID = "ae2_split_cpu";
     private static final Logger LOGGER = LogUtils.getLogger();
 
     /** 创造模式标签页（图标 = 分裂元件）。 */
@@ -30,7 +30,7 @@ public class Ae2SplitCpu {
 
     public static final RegistryObject<CreativeModeTab> CREATIVE_TAB = CREATIVE_TABS.register("main",
             () -> CreativeModeTab.builder()
-                    .title(Component.translatable("itemGroup.ae2-split-cpu"))
+                    .title(Component.translatable("itemGroup.ae2_split_cpu"))
                     .icon(() -> new ItemStack(AE2SplitBlocks.SPLIT_COMPONENT_ITEM.get()))
                     .displayItems((parameters, output) -> output.accept(AE2SplitBlocks.SPLIT_COMPONENT_ITEM.get()))
                     .build());

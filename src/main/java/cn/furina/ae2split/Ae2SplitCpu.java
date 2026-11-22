@@ -16,13 +16,13 @@ import org.slf4j.Logger;
 
 /**
  * 模组入口：持有全部 DeferredRegister，并在构造器里把方块/物品/方块实体/创造模式标签页
- * 挂到 mod 事件总线，同时注册 COMMON 配置（config/ae2-split-cpu-common.toml）。
+ * 挂到 mod 事件总线，同时注册 COMMON 配置（config/ae2_split_cpu-common.toml）。
  * 这里只做"注册"，不含任何分裂算法逻辑（那在 split/ 与 mixin/ 包里）。
  */
 @Mod(Ae2SplitCpu.MODID)
 public class Ae2SplitCpu {
     /** 必须与 gradle.properties 的 mod_id、neoforge.mods.toml 的 modId 完全一致。 */
-    public static final String MODID = "ae2-split-cpu";
+    public static final String MODID = "ae2_split_cpu";
     private static final Logger LOGGER = LogUtils.getLogger();
 
     /** 创造模式标签页注册表（图标 = 分裂元件）。 */
@@ -31,11 +31,11 @@ public class Ae2SplitCpu {
 
     /**
      * 本模组自己的创造模式标签页。
-     * 标题用可翻译组件，键为 itemGroup.ae2-split-cpu（见 lang 文件）。
+     * 标题用可翻译组件，键为 itemGroup.ae2_split_cpu（见 lang 文件）。
      */
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> CREATIVE_TAB = CREATIVE_TABS.register("main",
             () -> CreativeModeTab.builder()
-                    .title(Component.translatable("itemGroup.ae2-split-cpu"))
+                    .title(Component.translatable("itemGroup.ae2_split_cpu"))
                     .icon(() -> new ItemStack(AE2SplitBlocks.SPLIT_COMPONENT_ITEM.get()))
                     .displayItems((parameters, output) -> output.accept(AE2SplitBlocks.SPLIT_COMPONENT_ITEM.get()))
                     .build());
@@ -45,7 +45,7 @@ public class Ae2SplitCpu {
         AE2SplitBlocks.register(modEventBus);
         CREATIVE_TABS.register(modEventBus);
 
-        // COMMON 配置：服务端与客户端都要读，文件为 config/ae2-split-cpu-common.toml。
+        // COMMON 配置：服务端与客户端都要读，文件为 config/ae2_split_cpu-common.toml。
         modContainer.registerConfig(ModConfig.Type.COMMON, AE2SplitConfig.SPEC);
 
         LOGGER.info("AE2 Split CPU ({}) initialized", MODID);

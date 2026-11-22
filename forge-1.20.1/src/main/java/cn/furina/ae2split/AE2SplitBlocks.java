@@ -33,7 +33,7 @@ public final class AE2SplitBlocks {
     /** 分裂元件的单元类型（0 字节、0 并行）。 */
     public static final SplitComponentType SPLIT_COMPONENT_TYPE = new SplitComponentType();
 
-    /** 分裂元件方块：ae2-split-cpu:split_component。 */
+    /** 分裂元件方块：ae2_split_cpu:split_component。 */
     public static final RegistryObject<SplitComponentBlock> SPLIT_COMPONENT = BLOCKS.register("split_component",
             () -> new SplitComponentBlock(BlockBehaviour.Properties.of()
                     .strength(2f, 8f)

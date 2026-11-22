@@ -5,7 +5,7 @@ import net.neoforged.neoforge.common.ModConfigSpec;
 import cn.furina.ae2split.split.ParallelScheme;
 
 /**
- * COMMON 配置（config/ae2-split-cpu-common.toml）的键与默认值定义。
+ * COMMON 配置（config/ae2_split_cpu-common.toml）的键与默认值定义。
  * 只定义 SPEC 与取值句柄，不做任何业务判断；业务侧按需调用 xxx.get()，
  * 注意 ConfigValue.get() 只能在配置加载完成后（服务端/客户端启动阶段之后）调用。
  */
