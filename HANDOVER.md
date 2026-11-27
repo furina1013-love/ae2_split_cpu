@@ -62,6 +62,7 @@ ae2_split_cpu_1211/            ← 仓库根 = MC 1.21.1 / NeoForge 工程
 │  └─ libs/README.txt          ← 说明要自己放 AE2 15.4.12 的 jar（不随仓库分发）
 ├─ dist/                       ← 手工构建产物（CI 构建走 artifacts）
 ├─ cover/                      ← 封面图（logo-512/400/256、banner-1280x720/640）
+├─ art/make_cover3.py          ← 封面生成脚本
 └─ tools/cf_upload.py          ← （在上级目录 java-mod-dev/tools/）CurseForge 上传脚本
 ```
 
@@ -96,33 +97,33 @@ ae2_split_cpu_1211/            ← 仓库根 = MC 1.21.1 / NeoForge 工程
 
 ## 4. 私有文件（不要提交）
 
-统一放在 **`/root/java-mod-dev/_private/`**（700，文件 600）：
+统一放在 **/root/java-mod-dev/_private/**（目录 700，文件 600），索引见其中的 \`README.md\`：
 
-| 文件 | 用途 |
+| 路径 | 用途 |
 |---|---|
-| `githubtoken.txt` | GitHub PAT（推仓库、调 GitHub API 用） |
-| `curseforgetoken.txt` | CurseForge API key（❌ 目前那把是 UUID 形态，CF 不认，见坑 6） |
-| `github andcurseforge token.txt` | 用户原始给的合并文件（历史） |
-| `githubtoken.txt.bak` | 旧 token 备份 |
-| `mihomo-proxy/` | 代理内核 + 用户订阅配置（含节点，属私有） |
+| \`_private/tokens/githubtoken.txt\` | GitHub PAT（推仓库、调 GitHub API） |
+| \`_private/tokens/curseforgetoken.txt\` | CurseForge API key（❌ 现在这把是 UUID 形态，CF 不认，见坑 6） |
+| \`_private/tokens/github andcurseforge token.txt\` | 用户最早给的合并文件（历史） |
+| \`_private/proxy/mihomo/\` | 代理内核 + 订阅配置（含节点，私有） |
+| \`_private/gradle/init-mirror.gradle\` | 本机专用：官方 Maven → 镜像，并挂本地 pom |
+| \`_private/maven/localmaven/\` | 手搓的 \`net.neoforged:minecraft-dependencies:1.21.1\` |
+| \`_private/libs/1201\`、\`1201\` | 本机编译期缓存的 jar（Mekanism/EMI/Jade/AE2…） |
+| \`_private/scripts/b1211.sh\` | 本机快捷构建 1.21.1 |
+| \`_private/scripts/cf_upload.py\` | CurseForge 上传 CLI（check / project / upload / files） |
 
-规则：任何 token / 订阅 / 代理配置都放这里；提交前用 `git status` 确认没漏。仓库的 `.gitignore` 已排除 `libs/*.jar`、`build/`、`.gradle/`。
+规则：token、订阅、代理配置一律只放这里；提交前 \`git status\` 确认没漏。仓库 \`.gitignore\` 已排除 \`libs/*.jar\`、\`build/\`、\`.gradle/\`。
 
----
-
-## 5. 公用工具（可复用）
+## 5. 公用工具（随仓库走，可复用）
 
 | 路径 | 说明 |
 |---|---|
-| `/root/java-mod-dev/tools/cf_upload.py` | CurseForge 上传 CLI：`check` / `project` / `upload` / `files`。读取 `_private/curseforgetoken.txt` 或 `CF_API_KEY` |
-| `/root/java-mod-dev/art/make_cover3.py` | 封面生成（纯 PIL：径向背景 + 等轴方块 + 能量缝 + 文字），改颜色/文案后重跑即可 |
-| `/root/java-mod-dev/curseforge_upload/` | 给"手动上传 CurseForge"准备的一包东西：两个 jar、`upload_instructions.txt`、英文简介、中文简介 |
-| `/root/tools/vineflower.jar` | 反编译器（核对 AE2 签名用） |
-| `/root/libs1211/`、`/tmp/ae2_1201/` | 各版本 AE2 / JEI / guideme jar（编译期参考） |
+| \`.github/workflows/build.yml\` | CI：矩阵构建两平台；打 \`v*\` tag 自动发 Release |
+| \`art/make_cover3.py\` | 封面生成脚本（纯 PIL：径向背景 + 等轴方块 + 能量缝 + 文字），改颜色/文案重跑即可 |
+| \`cover/\` | 生成的封面：\`logo-512/400/256.png\`、\`banner-1280x720/640.png\` |
+| \`docs/curseforge.md\` / \`docs/mcmod.md\` | 英文简介 / 中文短简介（发布用） |
+| \`dist/\` | 手工构建产物归档（CI 产物在 Actions artifacts 与 Release 里） |
 
-**排查工具**：`javap -p -classpath <jar> <class>` 是核对 AE2/Forge 签名最快的方式；mixin 目标一定要对着真实 jar 看，不要凭记忆。
-
----
+**排查工具**：\`javap -p -classpath <jar> <class>\` 是核对 AE2/Forge 签名最快的方式；mixin 目标必须对真实 jar 看，不要凭记忆。反编译器 \`/root/tools/vineflower.jar\`。
 
 ## 6. 实现原理（改代码前必读）
 
@@ -134,6 +135,14 @@ ae2_split_cpu_1211/            ← 仓库根 = MC 1.21.1 / NeoForge 工程
 6. **重挂接**：`CraftingService#updateCPUClusters` 会重建集合，TAIL 里把仍存活的子 CPU 塞回去，并重新登记 `CraftingLink`，否则订单会失去连接卡住。
 7. **持久化**：主 CPU 的 NBT 里写 `ae2split_children`（每项 Bytes/Threads/Index/Logic），读档时重建；1.20.1 没有 `HolderLookup` 参数。
 8. **并行方案**：`EQUAL`（默认）= `ceil(剩余并行 / 剩余名额)`；`PROPORTIONAL` = 按订单字节比例；`ALL` 全给；`FIXED` 固定值。分配总额不会超过真实并行；**剩余为 0 时不再分裂**（否则子 CPU 0 并行接单会永久卡住）。
+
+---
+
+## 6.5 CI 现状（已验证）
+
+- push 到 \`main\`：两个 job 并行，均 success（run **a894485**），artifacts 里各一个 jar（≈49 KB zip）
+- 打 tag：自动创建 Release 并挂两个 jar（用临时 tag \`v0.0.0-ci-test\` 实测过，随后删除）
+- 坑：\`gradlew\` 在仓库里曾经**没有可执行位**（本机 umask 生成的文件是 644/600），CI 报 \`./gradlew: Permission denied\`；已 \`git update-index --chmod=+x\` 修好。**以后新增任何脚本/二进制，记得提交前 chmod +x。**
 
 ---
 

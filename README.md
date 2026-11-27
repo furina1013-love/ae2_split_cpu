@@ -8,6 +8,7 @@
 ![NeoForge](https://img.shields.io/badge/NeoForge-21.1.x-EA8C1E?style=flat-square)
 ![Forge](https://img.shields.io/badge/Forge-47.x-DA6A1E?style=flat-square)
 ![AE2](https://img.shields.io/badge/AE2-15.4.x%20%7C%2019.2.x-2E7CC4?style=flat-square)
+![Build](https://github.com/furina1013-love/ae2_split_cpu/actions/workflows/build.yml/badge.svg)
 ![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square)
 ![Release](https://img.shields.io/badge/Release-v1.1.1-success?style=flat-square)
 
