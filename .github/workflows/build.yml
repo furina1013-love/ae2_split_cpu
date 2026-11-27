@@ -14,11 +14,6 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-env:
-  # AE2 官方 jar（CurseForge CDN，无需鉴权）。只做编译期依赖，不随仓库分发。
-  AE2_1211_URL: https://mediafilez.forgecdn.net/files/9519/988/appliedenergistics2-19.2.19.jar
-  AE2_1201_URL: https://mediafilez.forgecdn.net/files/9357/405/appliedenergistics2-forge-15.4.12.jar
-
 jobs:
   build:
     name: ${{ matrix.name }}
@@ -32,13 +27,13 @@ jobs:
             java: '21'
             loader: neoforge-1.21.1
             ae2_path: libs/appliedenergistics2-19.2.19.jar
-            ae2_url: ${{ env.AE2_1211_URL }}
+            ae2_url: https://mediafilez.forgecdn.net/files/9519/988/appliedenergistics2-19.2.19.jar
           - name: forge-1.20.1
             dir: forge-1.20.1
             java: '17'
             loader: forge-1.20.1
             ae2_path: forge-1.20.1/libs/appliedenergistics2-forge-15.4.12.jar
-            ae2_url: ${{ env.AE2_1201_URL }}
+            ae2_url: https://mediafilez.forgecdn.net/files/9357/405/appliedenergistics2-forge-15.4.12.jar
     steps:
       - uses: actions/checkout@v4
 
