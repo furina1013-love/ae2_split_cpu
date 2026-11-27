@@ -97,15 +97,15 @@ ae2_split_cpu_1211/            ← 仓库根 = MC 1.21.1 / NeoForge 工程
 
 ## 4. 私有文件（不进仓库）
 
-本项目自己的私有文件集中在 **/root/java-mod-dev/ae2_split_cpu_private/**（700，文件 600），
-索引见里面的 `README.md`；全机器共享的东西在 `/root/java-mod-dev/_private/`（另一个索引）。
+凭据与代理是**全机器公用**的，放在 **/root/java-mod-dev/_private/**（700，文件 600，索引见其 `README.md`）；
+只属于本项目的脚本在 `/root/java-mod-dev/ae2_split_cpu_private/`。
 
 | 路径 | 用途 |
 |---|---|
-| `ae2_split_cpu_private/tokens/githubtoken.txt` | GitHub PAT（推仓库、调 Actions / Releases API） |
-| `ae2_split_cpu_private/tokens/curseforgetoken.txt` | CurseForge API key（❌ 现为 UUID 形态，CF 不认，见坑 6） |
-| `ae2_split_cpu_private/tokens/github andcurseforge token.txt` | 用户最早给的合并文件（历史） |
-| **`ae2_split_cpu_private/proxy/mihomo/`** | **代理**：`mihomo` 二进制 + `config.yaml`（用户订阅，含节点）+ `mihomo.log` |
+| `_private/tokens/githubtoken.txt` | GitHub PAT（推仓库、调 Actions / Releases API） |
+| `_private/tokens/curseforgetoken.txt` | CurseForge API key（❌ 现为 UUID 形态，CF 不认，见坑 6） |
+| `_private/tokens/github andcurseforge token.txt` | 用户最早给的合并文件（历史） |
+| **`_private/proxy/mihomo/`** | **代理**：`mihomo` 二进制 + `config.yaml`（用户订阅，含节点）+ `mihomo.log` |
 | `ae2_split_cpu_private/tools/cf_upload.py` | CurseForge 上传 CLI（check / project / upload / files） |
 | `_private/gradle/init-mirror.gradle` | 共享：官方 Maven → 镜像 + 本地 pom（仅本机） |
 | `_private/maven/localmaven/` | 共享：手搓的 `net.neoforged:minecraft-dependencies:1.21.1` |
@@ -114,7 +114,7 @@ ae2_split_cpu_1211/            ← 仓库根 = MC 1.21.1 / NeoForge 工程
 ### 代理怎么开（要连 CurseForge API 时才需要）
 
 ```bash
-cd /root/java-mod-dev/ae2_split_cpu_private/proxy/mihomo
+cd /root/java-mod-dev/_private/proxy/mihomo
 ./mihomo -d . -f config.yaml > mihomo.log 2>&1 &   # -d 必须相对路径（沙箱里绝对路径 mkdir 会 EACCES）
 curl -x http://127.0.0.1:7890 https://api.ipify.org # 验证出口 IP
 pkill -x mihomo                                     # 停止
