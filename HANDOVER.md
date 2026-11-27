@@ -95,23 +95,39 @@ ae2_split_cpu_1211/            ← 仓库根 = MC 1.21.1 / NeoForge 工程
 
 ---
 
-## 4. 私有文件（不要提交）
+## 4. 私有文件（不进仓库）
 
-统一放在 **/root/java-mod-dev/_private/**（目录 700，文件 600），索引见其中的 \`README.md\`：
+本项目自己的私有文件集中在 **/root/java-mod-dev/ae2_split_cpu_private/**（700，文件 600），
+索引见里面的 `README.md`；全机器共享的东西在 `/root/java-mod-dev/_private/`（另一个索引）。
 
 | 路径 | 用途 |
 |---|---|
-| \`_private/tokens/githubtoken.txt\` | GitHub PAT（推仓库、调 GitHub API） |
-| \`_private/tokens/curseforgetoken.txt\` | CurseForge API key（❌ 现在这把是 UUID 形态，CF 不认，见坑 6） |
-| \`_private/tokens/github andcurseforge token.txt\` | 用户最早给的合并文件（历史） |
-| \`_private/proxy/mihomo/\` | 代理内核 + 订阅配置（含节点，私有） |
-| \`_private/gradle/init-mirror.gradle\` | 本机专用：官方 Maven → 镜像，并挂本地 pom |
-| \`_private/maven/localmaven/\` | 手搓的 \`net.neoforged:minecraft-dependencies:1.21.1\` |
-| \`_private/libs/1201\`、\`1201\` | 本机编译期缓存的 jar（Mekanism/EMI/Jade/AE2…） |
-| \`_private/scripts/b1211.sh\` | 本机快捷构建 1.21.1 |
-| \`_private/scripts/cf_upload.py\` | CurseForge 上传 CLI（check / project / upload / files） |
+| `ae2_split_cpu_private/tokens/githubtoken.txt` | GitHub PAT（推仓库、调 Actions / Releases API） |
+| `ae2_split_cpu_private/tokens/curseforgetoken.txt` | CurseForge API key（❌ 现为 UUID 形态，CF 不认，见坑 6） |
+| `ae2_split_cpu_private/tokens/github andcurseforge token.txt` | 用户最早给的合并文件（历史） |
+| **`ae2_split_cpu_private/proxy/mihomo/`** | **代理**：`mihomo` 二进制 + `config.yaml`（用户订阅，含节点）+ `mihomo.log` |
+| `ae2_split_cpu_private/tools/cf_upload.py` | CurseForge 上传 CLI（check / project / upload / files） |
+| `_private/gradle/init-mirror.gradle` | 共享：官方 Maven → 镜像 + 本地 pom（仅本机） |
+| `_private/maven/localmaven/` | 共享：手搓的 `net.neoforged:minecraft-dependencies:1.21.1` |
+| `_private/libs/1201`、`_private/libs/1211` | 共享：编译期 jar 缓存 |
 
-规则：token、订阅、代理配置一律只放这里；提交前 \`git status\` 确认没漏。仓库 \`.gitignore\` 已排除 \`libs/*.jar\`、\`build/\`、\`.gradle/\`。
+### 代理怎么开（要连 CurseForge API 时才需要）
+
+```bash
+cd /root/java-mod-dev/ae2_split_cpu_private/proxy/mihomo
+./mihomo -d . -f config.yaml > mihomo.log 2>&1 &   # -d 必须相对路径（沙箱里绝对路径 mkdir 会 EACCES）
+curl -x http://127.0.0.1:7890 https://api.ipify.org # 验证出口 IP
+pkill -x mihomo                                     # 停止
+```
+
+- 混合端口 **127.0.0.1:7890**（http + socks5），控制器 **127.0.0.1:9090**
+- `config.yaml` 里已删掉 `GEOIP` 规则、关掉 DNS，避免启动时下载 mmdb/geosite 卡住
+- 切节点：`PUT http://127.0.0.1:9090/proxies/宝云 {"name":"🇭🇰 香港🦄1"}`
+- 需要代理的域名：`api.curseforge.com`、`www.curseforge.com`（CloudFront 403）；
+  `mediafilez.forgecdn.net`、`api.github.com`、`api.modrinth.com`、`ghproxy.net` 直连可用
+- **实测结论**：29 个节点 + GitHub runner 出口访问 CF API 全部 403，说明是 IP/凭证层面的拒绝，代理解决不了
+
+> 兼容软链：`_private/tokens/*` 与 `/root/java-mod-dev/githubtoken.txt` 都指向本项目新建的 tokens 目录，旧脚本不用改路径。
 
 ## 5. 公用工具（随仓库走，可复用）
 
