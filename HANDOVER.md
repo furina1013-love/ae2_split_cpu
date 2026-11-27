@@ -219,7 +219,7 @@ pkill -x mihomo                                     # 停止
 5. **Mixin 声明方式**：Forge 1.20.1 走 jar MANIFEST 的 `MixinConfigs: ae2split.mixins.json`；NeoForge 1.21.1 走 `neoforge.mods.toml` 的 `[[mixins]] config="..."`。两边别写混。
 6. **CurseForge API 从本容器不可达**：`api.curseforge.com` 对任何请求返回 CloudFront 403（换 29 个代理节点 + GitHub runner 都一样）；而 `mediafilez.forgecdn.net` 正常。另有：用户给的 36 位 UUID 不是 CF API key（CF 的 key 是 `$2a$10$...` 约 60 字符），所以上传至今未完成，见"待办"。
 7. **GitHub 直连不稳**：`git push` 偶发 `GnuTLS recv error`，重试或加 `-c http.version=HTTP/1.1` 即可；大文件下载走 `ghproxy.net` 镜像更稳（本地）。
-8. **构建产物版本号有两处**：1.20.1 工程的 `build.gradle` 里是字面量 `version = "1.2.0"`，`gradle.properties` 的 `mod_version` 只管 `mods.toml` 展开，改版本要**两处都改**（1.21.1 工程只有 `gradle.properties`）。
+8. **构建产物版本号有两处**：1.20.1 工程的 `build.gradle` 里是字面量 `version = "1.2.0"`，`forge-1.20.1/gradle.properties` 的 `mod_version` 决定 `mods.toml` 里的版本；改版本要**两处都改**（1.21.1 工程只有 `gradle.properties`）。`mods.toml` 的 version 已改成 `${mod_version}` 占位符，**不要再写死**——1.2.0 时曾因写死 1.1.1 导致 Forge jar 的元数据版本错误。
 9. **循环配方的真凶不是 `notRecursive` 一个**：即使放行，`CraftingTreeProcess` 仍会为自输入建子节点、
    `limitQty` 会让它一次只做一次，最后 `ignore(output)` 让成品库存为 0。四处必须一起改（详见 6.1）。
 10. **Mixins 的包私有方法桥接**：`CraftingTreeNode#request` 是包私有方法，跨包 mixin 不能直接调；

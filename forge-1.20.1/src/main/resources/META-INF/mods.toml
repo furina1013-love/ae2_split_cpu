@@ -5,7 +5,7 @@ issueTrackerURL="https://github.com/furina1013-love/ae2_split_cpu/issues"
 
 [[mods]]
 modId="ae2_split_cpu"
-version="1.1.1"
+version="${mod_version}"
 displayName="AE2 Split CPU"
 authors="furina1013"
 description='''
