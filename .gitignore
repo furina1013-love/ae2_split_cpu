@@ -10,3 +10,4 @@ forge-1.20.1/libs/*.jar
 forge-1.20.1/build/
 forge-1.20.1/.gradle/
 forge-1.20.1/run/
+dist/

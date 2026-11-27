@@ -66,19 +66,25 @@ jobs:
         run: |
           VERSION=$(grep -m1 '^mod_version=' "${{ matrix.dir }}/gradle.properties" | cut -d= -f2 | tr -d '\r')
           if [ -z "$VERSION" ]; then VERSION=dev; fi
-          mkdir -p dist
+          # 只使用本次构建的产物目录，避免把仓库里遗留的旧 dist/*.jar 一起打进去。
+          rm -rf ci-dist
+          mkdir -p ci-dist
           JAR=$(ls "${{ matrix.dir }}/build/libs/"*-$VERSION.jar 2>/dev/null | head -1)
-          if [ -z "$JAR" ]; then JAR=$(ls "${{ matrix.dir }}/build/libs/"*.jar | grep -v sources | grep -v javadoc | head -1); fi
-          OUT="dist/ae2-split-cpu-$VERSION-${{ matrix.loader }}.jar"
+          if [ -z "$JAR" ]; then
+            echo "::error::No jar matching version $VERSION; build/libs contains:"
+            ls -la "${{ matrix.dir }}/build/libs/" || true
+            exit 1
+          fi
+          OUT="ci-dist/ae2-split-cpu-$VERSION-${{ matrix.loader }}.jar"
           cp "$JAR" "$OUT"
           echo "jar=$OUT" >> "$GITHUB_OUTPUT"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          ls -la dist
+          ls -la ci-dist
 
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.loader }}
-          path: dist/*.jar
+          path: ci-dist/*.jar
 
   release:
     name: Publish release

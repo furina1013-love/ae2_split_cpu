@@ -73,7 +73,7 @@ ae2_split_cpu_1211/            ← 仓库根 = MC 1.21.1 / NeoForge 工程
 ├─ src/main/resources/         ← assets/ae2_split_cpu、data/ae2_split_cpu、mixins.json、mods.toml
 ├─ forge-1.20.1/               ← MC 1.20.1 / Forge 工程（同源码，改 Forge API 写法）
 │  └─ libs/README.txt          ← 说明要自己放 AE2 15.4.12 的 jar（不随仓库分发）
-├─ dist/                       ← 手工构建产物（CI 构建走 artifacts）
+├─ ci-dist/                    ← CI 临时产物目录（仅 runner 内使用，不入库；dist/ 已废弃并忽略）
 ├─ cover/                      ← 封面图（logo-512/400/256、banner-1280x720/640）
 ├─ art/make_cover3.py          ← 封面生成脚本
 └─ tools/cf_upload.py          ← （在上级目录 java-mod-dev/tools/）CurseForge 上传脚本
@@ -95,7 +95,7 @@ ae2_split_cpu_1211/            ← 仓库根 = MC 1.21.1 / NeoForge 工程
 
 - **矩阵**：`neoforge-1.21.1`（JDK 21，根目录）与 `forge-1.20.1`（JDK 17，`forge-1.20.1/`）
 - **AE2 编译期依赖**由 CI 自己从 CurseForge CDN 下载（`mediafilez.forgecdn.net`，无需鉴权），所以仓库里不需要也不允许提交 AE2 的 jar
-- 产物：每个平台的 `dist/ae2-split-cpu-<版本>-<loader>.jar`，作为 **artifact** 上传
+- 产物：每个平台的 `ci-dist/ae2-split-cpu-<版本>-<loader>.jar`，作为 **artifact** 上传（不再写入仓库里的 `dist/`）
 - **打 tag `v*` 时**：自动创建 GitHub Release 并把两个 jar 一起挂上去（`softprops/action-gh-release`）
 
 发版流程：改 `mod_version` → 推到 main → `git tag -a v1.1.2 -m ... && git push --tags` → CI 出 release。
@@ -150,7 +150,7 @@ pkill -x mihomo                                     # 停止
 | \`art/make_cover3.py\` | 封面生成脚本（纯 PIL：径向背景 + 等轴方块 + 能量缝 + 文字），改颜色/文案重跑即可 |
 | \`cover/\` | 生成的封面：\`logo-512/400/256.png\`、\`banner-1280x720/640.png\` |
 | \`docs/curseforge.md\` / \`docs/mcmod.md\` | 英文简介 / 中文短简介（发布用） |
-| \`dist/\` | 手工构建产物归档（CI 产物在 Actions artifacts 与 Release 里） |
+| \`dist/\` | 已废弃：旧手工产物已删除并加入 `.gitignore`；CI 产物在 Actions artifacts 与 Release 里 |
 
 **排查工具**：\`javap -p -classpath <jar> <class>\` 是核对 AE2/Forge 签名最快的方式；mixin 目标必须对真实 jar 看，不要凭记忆。反编译器 \`/root/tools/vineflower.jar\`。
 
