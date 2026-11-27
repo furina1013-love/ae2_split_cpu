@@ -17,6 +17,8 @@ import net.minecraftforge.registries.RegistryObject;
 import appeng.blockentity.AEBaseBlockEntity;
 import appeng.blockentity.crafting.CraftingBlockEntity;
 
+import cn.furina.ae2split.content.LoopCoreBlock;
+import cn.furina.ae2split.content.LoopCoreType;
 import cn.furina.ae2split.content.SplitComponentBlock;
 import cn.furina.ae2split.content.SplitComponentType;
 
@@ -56,6 +58,36 @@ public final class AE2SplitBlocks {
                         .build(null);
                 typeHolder.set(type);
                 AEBaseBlockEntity.registerBlockEntityItem(type, SPLIT_COMPONENT_ITEM.get());
+                block.setBlockEntity(CraftingBlockEntity.class, type, null, null);
+                return type;
+            });
+
+    /** 循环核心的单元类型（0 字节、0 并行）。 */
+    public static final LoopCoreType LOOP_CORE_TYPE = new LoopCoreType();
+
+    /** 循环核心方块：ae2_split_cpu:loop_core，属性与分裂元件一致。 */
+    public static final RegistryObject<LoopCoreBlock> LOOP_CORE = BLOCKS.register("loop_core",
+            () -> new LoopCoreBlock(BlockBehaviour.Properties.of()
+                    .strength(2f, 8f)
+                    .requiresCorrectToolForDrops()
+                    .sound(SoundType.METAL)
+                    .mapColor(MapColor.METAL)
+                    .forceSolidOn(), LOOP_CORE_TYPE));
+
+    /** 方块物品：ae2_split_cpu:loop_core。 */
+    public static final RegistryObject<Item> LOOP_CORE_ITEM = ITEMS.register("loop_core",
+            () -> new BlockItem(LOOP_CORE.get(), new Item.Properties()));
+
+    /** 循环核心的方块实体类型：复用 AE2 的 CraftingBlockEntity，并把类型反向注入方块的工厂。 */
+    public static final RegistryObject<BlockEntityType<CraftingBlockEntity>> LOOP_CORE_BE = BLOCK_ENTITY_TYPES
+            .register("loop_core", () -> {
+                LoopCoreBlock block = LOOP_CORE.get();
+                AtomicReference<BlockEntityType<CraftingBlockEntity>> typeHolder = new AtomicReference<>();
+                BlockEntityType<CraftingBlockEntity> type = BlockEntityType.Builder
+                        .of((pos, state) -> new CraftingBlockEntity(typeHolder.get(), pos, state), block)
+                        .build(null);
+                typeHolder.set(type);
+                AEBaseBlockEntity.registerBlockEntityItem(type, LOOP_CORE_ITEM.get());
                 block.setBlockEntity(CraftingBlockEntity.class, type, null, null);
                 return type;
             });

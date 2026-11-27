@@ -1,4 +1,5 @@
 {
   "block.ae2_split_cpu.split_component": "Split Component",
+  "block.ae2_split_cpu.loop_core": "Loop Core",
   "itemGroup.ae2_split_cpu": "AE2 Split CPU"
 }

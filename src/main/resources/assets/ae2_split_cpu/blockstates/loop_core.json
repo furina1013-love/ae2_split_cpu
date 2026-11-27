@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "formed=false": {
+      "model": "ae2_split_cpu:block/loop_core"
+    },
+    "formed=true": {
+      "model": "ae2_split_cpu:block/loop_core"
+    }
+  }
+}

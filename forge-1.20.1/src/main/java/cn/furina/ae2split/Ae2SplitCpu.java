@@ -32,7 +32,10 @@ public class Ae2SplitCpu {
             () -> CreativeModeTab.builder()
                     .title(Component.translatable("itemGroup.ae2_split_cpu"))
                     .icon(() -> new ItemStack(AE2SplitBlocks.SPLIT_COMPONENT_ITEM.get()))
-                    .displayItems((parameters, output) -> output.accept(AE2SplitBlocks.SPLIT_COMPONENT_ITEM.get()))
+                    .displayItems((parameters, output) -> {
+                        output.accept(AE2SplitBlocks.SPLIT_COMPONENT_ITEM.get());
+                        output.accept(AE2SplitBlocks.LOOP_CORE_ITEM.get());
+                    })
                     .build());
 
     public Ae2SplitCpu() {

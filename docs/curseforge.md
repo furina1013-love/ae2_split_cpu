@@ -13,6 +13,8 @@ Applied Energistics 2 crafting CPUs are strictly one-job-per-CPU: to craft two t
 * **Split Component block** — a crafting-unit block with 0 bytes and 0 threads. Placing one inside a CPU multiblock marks that CPU as "allowed to split" (configurable whether it is mandatory). It works in any AE2-compatible CPU multiblock, and it does not change the CPU's size.
 * **Configurable cap** — at most N sub-CPUs per master CPU, not counting the master itself.
 * **Persistence** — reservations survive world reload; a restart does not leak or duplicate bytes.
+* **Split Component indicator lights** — a formed Split Component shows four softly pulsing dots on its faces, so you can tell at a glance whether it is actually part of a valid, powered CPU.
+* **Loop Core block** — add one to a CPU and AE2 can plan self-feeding recipes such as `a + b -> 2a`. The planner treats the recipe by its net effect (`b -> a`), borrows a single seed item that is returned at the end of the job, and delivers exactly the requested amount. Only direct single-pattern loops are supported, and at least one seed must already be in the network when ordering.
 
 ## Compatibility
 
@@ -46,8 +48,8 @@ The total handed out never exceeds what the master CPU actually has, and a job i
 
 | Minecraft | Loader | AE2 | File |
 | --- | --- | --- | --- |
-| 1.21.1 | NeoForge 21.1.x | 19.2.x | `ae2-split-cpu-1.1.1-neoforge-1.21.1.jar` |
-| 1.20.1 | Forge 47.x | 15.4.x | `ae2-split-cpu-1.1.1-forge-1.20.1.jar` |
+| 1.21.1 | NeoForge 21.1.x | 19.2.x | `ae2-split-cpu-1.2.0-neoforge-1.21.1.jar` |
+| 1.20.1 | Forge 47.x | 15.4.x | `ae2-split-cpu-1.2.0-forge-1.20.1.jar` |
 
 ## Known behaviour
 

@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "E": {
+      "item": "minecraft:ender_pearl"
+    },
+    "R": {
+      "item": "minecraft:redstone"
+    },
+    "S": {
+      "item": "ae2_split_cpu:split_component"
+    }
+  },
+  "pattern": [
+    "ERE",
+    "RSR",
+    "ERE"
+  ],
+  "result": {
+    "count": 1,
+    "id": "ae2_split_cpu:loop_core"
+  }
+}

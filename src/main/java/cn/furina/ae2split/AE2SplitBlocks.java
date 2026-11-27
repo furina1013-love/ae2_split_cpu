@@ -18,6 +18,8 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import appeng.blockentity.AEBaseBlockEntity;
 import appeng.blockentity.crafting.CraftingBlockEntity;
 
+import cn.furina.ae2split.content.LoopCoreBlock;
+import cn.furina.ae2split.content.LoopCoreType;
 import cn.furina.ae2split.content.SplitComponentBlock;
 import cn.furina.ae2split.content.SplitComponentType;
 
@@ -75,6 +77,48 @@ public final class AE2SplitBlocks {
 
                 // AE2 用该映射给方块实体找"代表性物品"（掉落 / 提示等）。
                 AEBaseBlockEntity.registerBlockEntityItem(type, SPLIT_COMPONENT_ITEM.get());
+
+                // 没有 ticker（CraftingBlockEntity 自身由 CraftingService 驱动）。
+                block.setBlockEntity(CraftingBlockEntity.class, type, null, null);
+                return type;
+            });
+
+    /** 循环核心的单元类型实例（0 字节、0 并行、物品指向本方块自己）。 */
+    public static final LoopCoreType LOOP_CORE_TYPE = new LoopCoreType();
+
+    /**
+     * 循环核心方块：id = ae2_split_cpu:loop_core。
+     * 属性与分裂元件完全一致（硬度/抗爆/音效/mapColor/forceSolidOn）。
+     */
+    public static final DeferredBlock<LoopCoreBlock> LOOP_CORE = BLOCKS.registerBlock(
+            "loop_core",
+            properties -> new LoopCoreBlock(properties, LOOP_CORE_TYPE),
+            BlockBehaviour.Properties.of()
+                    .strength(2f, 8f)
+                    .requiresCorrectToolForDrops()
+                    .sound(SoundType.METAL)
+                    .mapColor(MapColor.METAL)
+                    .forceSolidOn());
+
+    /** 循环核心对应的 BlockItem：id = ae2_split_cpu:loop_core。 */
+    public static final DeferredItem<BlockItem> LOOP_CORE_ITEM = ITEMS.registerSimpleBlockItem(LOOP_CORE);
+
+    /**
+     * 循环核心的方块实体类型：id = ae2_split_cpu:loop_core，同样复用 AE2 的 CraftingBlockEntity。
+     * 写法与 SPLIT_COMPONENT_BE 一致：自引用 typeHolder 回填 + 反向注入方块工厂。
+     */
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CraftingBlockEntity>> LOOP_CORE_BE = BLOCK_ENTITY_TYPES
+            .register("loop_core", () -> {
+                LoopCoreBlock block = LOOP_CORE.get();
+
+                AtomicReference<BlockEntityType<CraftingBlockEntity>> typeHolder = new AtomicReference<>();
+                BlockEntityType.BlockEntitySupplier<CraftingBlockEntity> supplier = (pos, state) -> new CraftingBlockEntity(
+                        typeHolder.get(), pos, state);
+
+                BlockEntityType<CraftingBlockEntity> type = BlockEntityType.Builder.of(supplier, block).build(null);
+                typeHolder.set(type); // 回填，供上面 supplier 使用
+
+                AEBaseBlockEntity.registerBlockEntityItem(type, LOOP_CORE_ITEM.get());
 
                 // 没有 ticker（CraftingBlockEntity 自身由 CraftingService 驱动）。
                 block.setBlockEntity(CraftingBlockEntity.class, type, null, null);

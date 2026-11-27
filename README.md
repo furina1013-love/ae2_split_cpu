@@ -10,7 +10,7 @@
 ![AE2](https://img.shields.io/badge/AE2-15.4.x%20%7C%2019.2.x-2E7CC4?style=flat-square)
 ![Build](https://github.com/furina1013-love/ae2_split_cpu/actions/workflows/build.yml/badge.svg)
 ![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square)
-![Release](https://img.shields.io/badge/Release-v1.1.1-success?style=flat-square)
+![Release](https://img.shields.io/badge/Release-v1.2.0-success?style=flat-square)
 
 [下载](https://github.com/furina1013-love/ae2_split_cpu/releases/latest) · [配置](#配置) · [从源码构建](#从源码构建) · [原理](#实现原理)
 
@@ -48,7 +48,8 @@ AE2 终端 → CPU 状态页
 - 📏 **字节精确预留**：子 CPU 可用字节恰为该订单的 `plan.bytes()`
 - 🧵 **并行可配置**：按字节比例 / 均分 / 全给 / 固定，四种方案
 - 🔢 **分裂上限**：每个 CPU 最多几个子 CPU（不含主 CPU），配置项
-- 🧩 **分裂元件方块**：默认要求 CPU 结构里装一块才允许分裂
+- 🧩 **分裂元件方块**：默认要求 CPU 结构里装一块才允许分裂；成型后表面会亮起闪烁的点，一眼看出它有没有接进有效 CPU
+- 🔁 **循环核心方块**：装在 CPU 里即可下单 `a + b = 2a` 这类自循环配方，规划器按“净产出”计算，种子借用后归还
 - 💾 **存档持久化**：子 CPU 与进行中的订单随主 CPU 一起存读档
 - 🔌 **兼容友好**：JEI 配方显示、标准 NeoForge 配置、其它 AE2 附属的 CPU 方块
 
@@ -56,8 +57,8 @@ AE2 终端 → CPU 状态页
 
 | 游戏版本 | 加载器 | 需要的 AE2 | 下载的 jar |
 |---|---|---|---|
-| **1.21.1** | NeoForge 21.1.x | AE2 **19.2.x** | `ae2-split-cpu-1.1.1-neoforge-1.21.1.jar` |
-| **1.20.1** | Forge 47.x | AE2 **15.4.x** | `ae2-split-cpu-1.1.1-forge-1.20.1.jar` |
+| **1.21.1** | NeoForge 21.1.x | AE2 **19.2.x** | `ae2-split-cpu-1.2.0-neoforge-1.21.1.jar` |
+| **1.20.1** | Forge 47.x | AE2 **15.4.x** | `ae2-split-cpu-1.2.0-forge-1.20.1.jar` |
 
 1. 按上表下载对应版本的 jar，丢进 `mods/` 文件夹
 2. 安装对应版本的 **Applied Energistics 2**（必须，模组不内置）
@@ -84,6 +85,49 @@ E R E        E = 工程处理器  (ae2:engineering_processor)
 
 任意 AE2 CPU 多方块都能用（它和 AE2 自带合成单元同属 `CraftingBlockEntity`，
 所以其它 AE2 附属添加的 CPU 方块也兼容）。
+
+### 闪烁点：判断它有没有接进有效 CPU
+
+分裂元件成型后，方块表面（顶面 + 四个侧面）会亮起 **4 个会呼吸闪烁的点**：
+
+| CPU 状态 | 表现 |
+|---|---|
+| 已成型的 CPU 且已供能 | 绿色/青色快速闪烁（有效） |
+| 已成型的 CPU 但未供能 | 琥珀色缓慢闪烁 |
+| 没接进 CPU（未成型） | 不显示任何点 |
+
+点只在客户端渲染，状态直接读方块同步过来的 `FORMED` / `POWERED`，不会增加服务端负担。
+
+## 循环核心
+
+`ae2_split_cpu:loop_core`（中文名「循环核心」）—— 同样是 **0 字节 / 0 并行** 的 CPU 标记方块，
+但它让 AE2 能规划 **自循环配方**，例如：
+
+```
+1 a + 1 b  ->  2 a      // 净效果：1 b -> 1 a，a 自己循环
+```
+
+原版 AE2 会把这种配方当成“递归/缺料”直接拒绝。装上循环核心后，规划器把它当成 **净配方**：
+每执行一次净产出 `+1 a`、净消耗 `+1 b`；执行时只需要 **1 个 a 作为种子** 在 CPU 里循环，
+任务结束后种子作为余料自动退回网络（“借用后归还，不计入消耗”）。
+
+使用条件与步骤：
+
+1. 在任意一台 CPU 的多方块结构里放至少 1 个循环核心（和分裂元件一样占一个单元位置）。
+2. 网络里先准备 **至少 1 个循环物品本身**（上例是 1 个 a）作为种子，否则下单会报缺料。
+3. 正常在终端里下单循环物品即可；CPU 会按净配方执行，产物 = 下单数量。
+
+合成：
+
+```
+E R E        E = 末影珍珠      (minecraft:ender_pearl)
+R S R        R = 红石          (minecraft:redstone)
+E R E        S = 分裂元件      (ae2_split_cpu:split_component)
+             -> 1x 循环核心
+```
+
+> 循环规划是网络级的：只要网络上有一台成型的、含循环核心的 CPU，该网络就能规划循环配方；
+> 任务由哪台 CPU 执行都可以（分裂 CPU 也可以）。
 
 ## 配置
 
@@ -145,7 +189,7 @@ E R E        E = 工程处理器  (ae2:engineering_processor)
 #    b. 或构建时传路径：-Pae2Jar=/path/to/appliedenergistics2-19.2.19.jar
 # 2) 构建
 ./gradlew build
-# 产物：build/libs/ae2-split-cpu-1.1.0.jar
+# 产物：build/libs/ae2-split-cpu-1.2.0.jar
 ```
 
 不想自己编译？直接用 [Releases](https://github.com/furina1013-love/ae2_split_cpu/releases/latest) 里的 jar。
@@ -161,12 +205,22 @@ E R E        E = 工程处理器  (ae2:engineering_processor)
 - **回收**：`CraftingService.onServerEndTick` 末尾扫描「无任务且库存为空」的子 CPU 并销毁；
   `updateCPUClusters` 重建集合后把存活子 CPU 重新挂回，并补登记 `CraftingLink`。
 - **持久化**：主 CPU 的 NBT 里多一个 `ae2split_children` 列表，随主 CPU 存档。
+- **循环规划**：`CraftingTreeNode/notRecursive` 放行自循环配方；`CraftingTreeProcess` 把配方当成净配方——
+  跳过“输入同时也是输出”的子节点、只写入净产出；`CraftingCpuLogic.trySubmitJob` 在下单时把种子补进
+  `plan.usedItems()`，CPU 提交任务时会把它从网络抽进库存，结束后随余料退回。
+- **闪烁点**：客户端 `BlockEntityRenderer` 读取方块状态的 `FORMED/POWERED`，用 `entityTranslucent`
+  在 5 个面各画 4 个全亮小四边形，按世界时间做正弦脉动。
 
 ## 已知限制
 
 - CPU 监视器在分裂时显示子订单的输出，多个子 CPU 并发时会互相覆盖。
 - 主 CPU 被破坏时先取消所有子订单并把余料退回网络；网络已满时余料可能留在 CPU 内部库存。
 - 本模组依赖 Mixin 修改 AE2 内部类，AE2 大版本升级（19.2 → 19.3+）后需要重新核对签名。
+- 循环核心目前只处理 **单配方直接自循环**（输入与输出含同一个 key）。跨多个配方的循环
+  （`a -> b -> a`）仍会按缺料处理；完整的多配方循环求解可参考 Eco AE Extension 的 cycle solver。
+- 每个循环 key 每次下单只注入 **1 个种子**，因此同一循环同时只有 1 个配方在跑（吞吐受配方耗时限制）。
+  种子越多并不能自动提速；如果配方本身有多个输出/副产物，副产物会按普通余料退回网络。
+- 循环配方若带容器物品（桶等），容器返还不会计入规划；这类配方请在普通 CPU 上使用。
 
 ## 许可证
 

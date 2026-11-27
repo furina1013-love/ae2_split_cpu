@@ -1,6 +1,7 @@
 {
   "replace": false,
   "values": [
-    "ae2_split_cpu:split_component"
+    "ae2_split_cpu:split_component",
+    "ae2_split_cpu:loop_core"
   ]
 }

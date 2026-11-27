@@ -5,7 +5,11 @@
   "compatibilityLevel": "JAVA_17",
   "mixins": [
     "CraftingCPUClusterMixin",
-    "CraftingServiceMixin"
+    "CraftingCalculationMixin",
+    "CraftingCpuLogicMixin",
+    "CraftingServiceMixin",
+    "CraftingTreeNodeMixin",
+    "CraftingTreeProcessMixin"
   ],
   "injectors": {
     "defaultRequire": 1

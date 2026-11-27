@@ -1,8 +1,9 @@
 # 交接文档 —— AE2 Split CPU
 
-> 给下一个接手的人 / 给未来的自己。最后更新：v1.1.1（2026-11）。
+> 给下一个接手的人 / 给未来的自己。最后更新：v1.2.0（2026-11）。
 > 项目：<https://github.com/furina1013-love/ae2_split_cpu>
-> 当前版本：**1.1.1**，双平台：MC 1.21.1 + NeoForge 21.1.x ／ MC 1.20.1 + Forge 47.x。
+> 当前版本：**1.2.0**，双平台：MC 1.21.1 + NeoForge 21.1.x ／ MC 1.20.1 + Forge 47.x。
+> 1.2.0 新增：分裂元件“有效 CPU”闪烁点、循环核心（自循环配方 `a+b=2a`）。
 
 ---
 
@@ -27,6 +28,8 @@
 | 13 | 写 CurseForge 英文简介 + mcmod 中文简介（后者更短） | `docs/curseforge.md`、`docs/mcmod.md` |
 | 14 | 做一张封面 | `art/make_cover3.py`（PIL 脚本）→ `cover/*.png` |
 | 15 | git 流程改成 **推源码、CI 构建** | `.github/workflows/build.yml`（本次新增） |
+| 16 | 给接到有效 CPU 的分裂核心加几个闪烁的点，用于辨别核心是否有效 | `client/SplitComponentRenderer`（两平台各一份）+ `client/AE2SplitClient` 注册 BER；读方块状态 `FORMED/POWERED` |
+| 17 | 加“循环核心”，让 AE 下单可以下单循环物品（如 `a+b=2a`） | `content/LoopCoreBlock` + `LoopCoreType`；`mixin/CraftingCalculationMixin`、`CraftingTreeNodeMixin`、`CraftingTreeProcessMixin`、`CraftingCpuLogicMixin`；`split/LoopCoreManager` |
 
 ---
 
@@ -48,7 +51,13 @@ ae2_split_cpu_1211/            ← 仓库根 = MC 1.21.1 / NeoForge 工程
 │  ├─ AE2SplitConfig.java      ← 配置项与默认值
 │  ├─ content/
 │  │  ├─ SplitComponentBlock.java  ← 分裂元件方块（继承 AE2 AbstractCraftingUnitBlock）
-│  │  └─ SplitComponentType.java   ← ICraftingUnitType：0 字节 / 0 并行
+│  │  ├─ SplitComponentType.java   ← ICraftingUnitType：0 字节 / 0 并行
+│  │  ├─ LoopCoreBlock.java        ← 循环核心方块（同样的 0/0 标记块）
+│  │  └─ LoopCoreType.java         ← 循环核心的 ICraftingUnitType
+│  ├─ client/
+│  │  ├─ SplitComponentRenderer.java ← 成型后 5 个面各 4 个闪烁点（BER）
+│  │  └─ AE2SplitClient.java       ← Dist.CLIENT 下注册 BER
+│  ├─ split/LoopCoreManager.java   ← 循环配方净收支分析、种子注入、CPU/网格含循环核心判定
 │  ├─ split/
 │  │  ├─ SplitCpuManager.java  ← 核心：分裂、预留、回收、持久化、并行分配
 │  │  ├─ ParallelScheme.java   ← 并行方案枚举
@@ -56,7 +65,11 @@ ae2_split_cpu_1211/            ← 仓库根 = MC 1.21.1 / NeoForge 工程
 │  │  └─ SplitCpuHandle.java   ← 由 CraftingCPUClusterMixin 实现（子 CPU 私有状态）
 │  └─ mixin/
 │     ├─ CraftingCPUClusterMixin.java ← 委托 + 扣减 + 下单拦截 + NBT 存读
-│     └─ CraftingServiceMixin.java    ← CPU 集合增删、结束回收、重挂接
+│     ├─ CraftingServiceMixin.java    ← CPU 集合增删、结束回收、重挂接
+│     ├─ CraftingCalculationMixin.java ← 本次计算是否启用循环、种子库存查询
+│     ├─ CraftingTreeNodeMixin.java    ← 放行自循环配方（notRecursive）
+│     ├─ CraftingTreeProcessMixin.java ← 净配方模拟（跳过自输入、只写净产出）
+│     └─ CraftingCpuLogicMixin.java    ← 提交任务时把循环种子补进 plan.usedItems
 ├─ src/main/resources/         ← assets/ae2_split_cpu、data/ae2_split_cpu、mixins.json、mods.toml
 ├─ forge-1.20.1/               ← MC 1.20.1 / Forge 工程（同源码，改 Forge API 写法）
 │  └─ libs/README.txt          ← 说明要自己放 AE2 15.4.12 的 jar（不随仓库分发）
@@ -152,6 +165,41 @@ pkill -x mihomo                                     # 停止
 7. **持久化**：主 CPU 的 NBT 里写 `ae2split_children`（每项 Bytes/Threads/Index/Logic），读档时重建；1.20.1 没有 `HolderLookup` 参数。
 8. **并行方案**：`EQUAL`（默认）= `ceil(剩余并行 / 剩余名额)`；`PROPORTIONAL` = 按订单字节比例；`ALL` 全给；`FIXED` 固定值。分配总额不会超过真实并行；**剩余为 0 时不再分裂**（否则子 CPU 0 并行接单会永久卡住）。
 
+### 6.1 循环核心（1.2.0）
+
+目标：让 AE2 能规划 `a+b=2a` 这类“输入同时是输出”的自循环配方。AE2 原来有三道拦截：
+`CraftingTreeNode#notRecursive` 剪递归、`CraftingTreeProcess#updateLimitQty` 限一次、
+`CraftingCalculation` 的 `craftingInventory.ignore(output)` 把成品库存视为 0。
+
+本实现把它当 **净配方**（每执行一次 `+1 a / -1 b`），分四步：
+
+1. `CraftingCalculationMixin`：本次计算所在网格里只要有成型的循环核心 CPU，就置 `loopEnabled`；
+   并提供 `hasStock(seed, 1)` 查询（直接读 `NetworkCraftingSimulationState`，模拟抽取不扣库存）。
+2. `CraftingTreeNodeMixin#notRecursive`：当配方对当前节点有正净产出时放行（否则 AE2 直接剪掉）。
+3. `CraftingTreeProcessMixin`：构造时分析净收支并记录；`request` 里 **跳过“输入也是输出”的子节点**、
+   只往模拟库存写净产出；`getOutputCount` 返回净产出、`limitsQuantity` 返回 false。
+   规划结果因此是 **非模拟计划**（`simulation=false`），可以正常提交。
+4. `CraftingCpuLogicMixin#trySubmitJob`：把种子（每个循环 key 1 个）加进 `plan.usedItems()`。
+   AE2 的 `CraftingCpuHelper.tryExtractInitialItems` 会据此把种子从网络抽进 CPU 库存；
+   执行时真实配方消耗种子、产出成品，净多出的种子在任务结束 `storeItems()` 时退回网络。
+
+关键约束：
+
+- **规划期就需要 1 个种子在库存里**（`hasStock` 检查）。否则规划按原版失败/缺料，避免出现“计划成功、提交必卡”的状态。
+- 只支持 **单配方直接自循环**；多配方环（`a→b→a`）仍无解，参考 Eco AE Extension 的 cycle solver。
+- 每个 key 每次下单只注入 1 个种子 → 同一循环串行执行；要提速得改 `LoopCoreManager.addLoopSeeds` 的种子数量与执行并发策略。
+- 循环配方带容器物品（桶等）时，`request` 里传 `null`，容器返还不会进模拟；这类配方别用循环核心。
+
+### 6.2 闪烁点（1.2.0）
+
+- 渲染器 `SplitComponentRenderer`（两平台各一份，`cn.furina.ae2split.client`），BER 注册走
+  `EntityRenderersEvent.RegisterRenderers`；客户端类分别用 NeoForge 的 `@EventBusSubscriber(... Dist.CLIENT)`
+  与 Forge 的 `@Mod.EventBusSubscriber(... value = Dist.CLIENT)`，服务端不会加载。
+- 判定只用客户端可见的 `CraftingBlockEntity#isFormed()/isPowered()`（客户端读方块状态 `FORMED/POWERED`，
+  `cluster` 在客户端恒为 null，不能查 cluster）。
+- 顶面 + 4 个侧面各 4 个 0.15 见方的小四边形，贴图 `split_dot.png`，`RenderType.entityTranslucent`，
+  顶点全亮 `0xF000F0`，alpha 用 `level.getGameTime() + partialTick` 做正弦脉动。
+
 ---
 
 ## 6.5 CI 现状（已验证）
@@ -171,7 +219,14 @@ pkill -x mihomo                                     # 停止
 5. **Mixin 声明方式**：Forge 1.20.1 走 jar MANIFEST 的 `MixinConfigs: ae2split.mixins.json`；NeoForge 1.21.1 走 `neoforge.mods.toml` 的 `[[mixins]] config="..."`。两边别写混。
 6. **CurseForge API 从本容器不可达**：`api.curseforge.com` 对任何请求返回 CloudFront 403（换 29 个代理节点 + GitHub runner 都一样）；而 `mediafilez.forgecdn.net` 正常。另有：用户给的 36 位 UUID 不是 CF API key（CF 的 key 是 `$2a$10$...` 约 60 字符），所以上传至今未完成，见"待办"。
 7. **GitHub 直连不稳**：`git push` 偶发 `GnuTLS recv error`，重试或加 `-c http.version=HTTP/1.1` 即可；大文件下载走 `ghproxy.net` 镜像更稳（本地）。
-8. **构建产物版本号有两处**：1.20.1 工程的 `build.gradle` 里是字面量 `version = "1.1.1"`，`gradle.properties` 的 `mod_version` 只管 `mods.toml` 展开，改版本要**两处都改**（1.21.1 工程只有 `gradle.properties`）。
+8. **构建产物版本号有两处**：1.20.1 工程的 `build.gradle` 里是字面量 `version = "1.2.0"`，`gradle.properties` 的 `mod_version` 只管 `mods.toml` 展开，改版本要**两处都改**（1.21.1 工程只有 `gradle.properties`）。
+9. **循环配方的真凶不是 `notRecursive` 一个**：即使放行，`CraftingTreeProcess` 仍会为自输入建子节点、
+   `limitQty` 会让它一次只做一次，最后 `ignore(output)` 让成品库存为 0。四处必须一起改（详见 6.1）。
+10. **Mixins 的包私有方法桥接**：`CraftingTreeNode#request` 是包私有方法，跨包 mixin 不能直接调；
+   做法是在 `CraftingTreeNodeMixin` 里 `@Shadow abstract` 声明同签名方法，再用 `@Unique` 公共方法
+   （`LoopNodeAccess#ae2split$requestNode`）桥接出去。新增跨包调用时照此办理。
+11. **种子不要重复加**：`CraftingCpuLogic#trySubmitJob` 可能被自动选 CPU 重试调用多次，
+    `LoopCoreManager.SEEDED`（WeakHashMap 按 plan 身份）保证同一计划只补一次；否则会多抽库存。
 
 ---
 
@@ -182,10 +237,13 @@ pkill -x mihomo                                     # 停止
 - 子 CPU 不落地、不占方块，随主 CPU 存读档重建。
 - **CurseForge 尚未发布**（缺可用 API key）；mcmod 也未提交（需手动）。
 - 1.20.1 版本只做了编译验证，尚未在真实客户端长期跑（1.21.1 版本用户已实测可以启动）。
+- 循环核心：只支持单配方直接自循环（`a+b=2a`）；规划/下单时网络里必须已有 ≥1 个种子；
+  每个 key 只注入 1 个种子，循环串行执行；带容器物品的循环配方不支持；多配方环（`a→b→a`）无解。
+- 闪烁点：只在客户端渲染，不参与服务端逻辑；未成型不画点。
 
 ## 9. 待办
 
-1. 拿到**真正的 CurseForge API key**（`$2a$10$...`）→ 用 `tools/cf_upload.py` 或 GitHub Actions（runner 出口可通）建项目 + 传 1.1.1 两个 jar。
+1. 拿到**真正的 CurseForge API key**（`$2a$10$...`）→ 用 `tools/cf_upload.py` 或 GitHub Actions（runner 出口可通）建项目 + 传 1.2.0 两个 jar。
 2. mcmod 建条目：用 `docs/mcmod.md` + `cover/logo-256.png`。
 3. 旧存档兼容提示（modid 变更史：`ae2_split_cpu` → 1.1.0 的 `ae2-split-cpu` → 1.1.1 回到 `ae2_split_cpu`）已在 Release 里说明。
 4. 可选优化：CPU 监视器显示子 CPU、子 CPU 命名可配、`CHILDREN` 用弱引用清理。
