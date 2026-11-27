@@ -10,7 +10,7 @@
 ![AE2](https://img.shields.io/badge/AE2-15.4.x%20%7C%2019.2.x-2E7CC4?style=flat-square)
 ![Build](https://github.com/furina1013-love/ae2_split_cpu/actions/workflows/build.yml/badge.svg)
 ![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square)
-![Release](https://img.shields.io/badge/Release-v1.2.0-success?style=flat-square)
+![Release](https://img.shields.io/badge/Release-v1.2.1-success?style=flat-square)
 
 [下载](https://github.com/furina1013-love/ae2_split_cpu/releases/latest) · [配置](#配置) · [从源码构建](#从源码构建) · [原理](#实现原理)
 
@@ -57,8 +57,8 @@ AE2 终端 → CPU 状态页
 
 | 游戏版本 | 加载器 | 需要的 AE2 | 下载的 jar |
 |---|---|---|---|
-| **1.21.1** | NeoForge 21.1.x | AE2 **19.2.x** | `ae2-split-cpu-1.2.0-neoforge-1.21.1.jar` |
-| **1.20.1** | Forge 47.x | AE2 **15.4.x** | `ae2-split-cpu-1.2.0-forge-1.20.1.jar` |
+| **1.21.1** | NeoForge 21.1.x | AE2 **19.2.x** | `ae2-split-cpu-1.2.1-neoforge-1.21.1.jar` |
+| **1.20.1** | Forge 47.x | AE2 **15.4.x** | `ae2-split-cpu-1.2.1-forge-1.20.1.jar` |
 
 1. 按上表下载对应版本的 jar，丢进 `mods/` 文件夹
 2. 安装对应版本的 **Applied Energistics 2**（必须，模组不内置）
@@ -189,7 +189,7 @@ E R E        S = 分裂元件      (ae2_split_cpu:split_component)
 #    b. 或构建时传路径：-Pae2Jar=/path/to/appliedenergistics2-19.2.19.jar
 # 2) 构建
 ./gradlew build
-# 产物：build/libs/ae2-split-cpu-1.2.0.jar
+# 产物：build/libs/ae2-split-cpu-1.2.1.jar
 ```
 
 不想自己编译？直接用 [Releases](https://github.com/furina1013-love/ae2_split_cpu/releases/latest) 里的 jar。

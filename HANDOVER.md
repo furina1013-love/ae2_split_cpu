@@ -1,9 +1,10 @@
 # 交接文档 —— AE2 Split CPU
 
-> 给下一个接手的人 / 给未来的自己。最后更新：v1.2.0（2026-11）。
+> 给下一个接手的人 / 给未来的自己。最后更新：v1.2.1（2026-11）。
 > 项目：<https://github.com/furina1013-love/ae2_split_cpu>
-> 当前版本：**1.2.0**，双平台：MC 1.21.1 + NeoForge 21.1.x ／ MC 1.20.1 + Forge 47.x。
+> 当前版本：**1.2.1**，双平台：MC 1.21.1 + NeoForge 21.1.x ／ MC 1.20.1 + Forge 47.x。
 > 1.2.0 新增：分裂元件“有效 CPU”闪烁点、循环核心（自循环配方 `a+b=2a`）。
+> 1.2.1 修复：无种子时 `notRecursive` 放行导致规划阶段递归；Forge jar 元数据版本 1.2.0。
 
 ---
 
@@ -243,7 +244,7 @@ pkill -x mihomo                                     # 停止
 
 ## 9. 待办
 
-1. 拿到**真正的 CurseForge API key**（`$2a$10$...`）→ 用 `tools/cf_upload.py` 或 GitHub Actions（runner 出口可通）建项目 + 传 1.2.0 两个 jar。
+1. 拿到**真正的 CurseForge API key**（`$2a$10$...`）→ 用 `tools/cf_upload.py` 或 GitHub Actions（runner 出口可通）建项目 + 传 1.2.1 两个 jar。
 2. mcmod 建条目：用 `docs/mcmod.md` + `cover/logo-256.png`。
 3. 旧存档兼容提示（modid 变更史：`ae2_split_cpu` → 1.1.0 的 `ae2-split-cpu` → 1.1.1 回到 `ae2_split_cpu`）已在 Release 里说明。
 4. 可选优化：CPU 监视器显示子 CPU、子 CPU 命名可配、`CHILDREN` 用弱引用清理。

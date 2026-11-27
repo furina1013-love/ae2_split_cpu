@@ -62,8 +62,16 @@ public abstract class CraftingTreeNodeMixin implements LoopNodeAccess {
         if (!(this.job instanceof LoopCalcAccess calc) || !calc.ae2split$isLoopEnabled()) {
             return;
         }
-        if (LoopCoreManager.analyze(details).supplies(this.what)) {
-            cir.setReturnValue(Boolean.TRUE);
+        LoopCoreManager.PatternInfo info = LoopCoreManager.analyze(details);
+        if (!info.supplies(this.what)) {
+            return;
         }
+        // 种子不在库存时不要放行：否则子节点会再次挂上同一配方，规划阶段无限递归。
+        for (AEKey seed : info.seeds()) {
+            if (!calc.ae2split$hasStock(seed, 1L)) {
+                return;
+            }
+        }
+        cir.setReturnValue(Boolean.TRUE);
     }
 }
