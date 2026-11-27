@@ -27,8 +27,8 @@ import cn.furina.ae2split.content.LoopCoreBlock;
  *
  * <p>AE2 默认不支持自引用配方：{@code a + b -> 2a} 这类配方在规划时会被
  * {@code CraftingTreeNode.notRecursive} 排除，规划器报“缺料”。循环核心的作用是把这种配方
- * 当成“净配方”处理：每执行一次，净产出 {@code +1a}、净消耗 {@code +1b}；执行时只需要 1 个 a
- * 作为“种子”在 CPU 内部循环使用（用完回到 CPU 库存，任务结束后随余料退回网络）。</p>
+ * 当成“净配方”处理：每执行一次，净产出 {@code +1a}、净消耗 {@code +1b}；执行时需要在 CPU
+ * 里先放足够启动一次配方的 a 作为“种子”，配方跑完后种子随产物回到 CPU，任务结束再退回网络。</p>
  *
  * <p>规划器改造在 mixin 里完成（CraftingTreeNode / CraftingTreeProcess / CraftingCalculation），
  * 本类只提供纯函数：配方净产出分析、CPU/网格是否含循环核心、下单时补种子。</p>
@@ -38,12 +38,20 @@ import cn.furina.ae2split.content.LoopCoreBlock;
  */
 public final class LoopCoreManager {
 
-    /** 单个配方按“一次执行”计算的净收支。 */
+    /**
+     * 单个配方按“一次执行”计算的收支。
+     *
+     * @param netPerCraft  净收支（产出 - 消耗），正数表示净产出
+     * @param grossOutputs 毛产出，用于“输入也是输出但净亏”的 key
+     * @param recycled     输入同时是输出、且不亏的 key（执行时靠自身输出循环补足）
+     * @param seeds        每个 recycled key 启动一次配方所需的种子数量（= 一次配方的输入量）
+     */
     public record PatternInfo(Map<AEKey, Long> netPerCraft,
+            Map<AEKey, Long> grossOutputs,
             Set<AEKey> recycled,
-            Set<AEKey> seeds) {
+            Map<AEKey, Long> seeds) {
 
-        public static final PatternInfo NONE = new PatternInfo(Map.of(), Set.of(), Set.of());
+        public static final PatternInfo NONE = new PatternInfo(Map.of(), Map.of(), Set.of(), Map.of());
 
         /** 该配方是否是“自循环配方”（至少一个输入同时是输出）。 */
         public boolean isLoop() {
@@ -73,7 +81,7 @@ public final class LoopCoreManager {
     private LoopCoreManager() {
     }
 
-    /** 分析一个配方每次执行时的净收支。 */
+    /** 分析一个配方每次执行时的收支。 */
     public static PatternInfo analyze(@Nullable IPatternDetails details) {
         if (details == null) {
             return PatternInfo.NONE;
@@ -117,7 +125,7 @@ public final class LoopCoreManager {
 
         Map<AEKey, Long> net = new LinkedHashMap<>();
         Set<AEKey> recycled = new LinkedHashSet<>();
-        Set<AEKey> seeds = new LinkedHashSet<>();
+        Map<AEKey, Long> seeds = new LinkedHashMap<>();
         for (AEKey key : keys) {
             long in = consumed.getOrDefault(key, 0L);
             long out = produced.getOrDefault(key, 0L);
@@ -126,15 +134,17 @@ public final class LoopCoreManager {
                 net.put(key, diff);
             }
             // 输入同时被输出覆盖：执行时不需要真的消耗掉，循环复用即可。
+            // 种子数量必须覆盖一次配方的完整输入（例如 2a+b -> 3a 需要 2 个 a 才能启动）。
             if (in > 0L && out > 0L && diff >= 0L) {
                 recycled.add(key);
-                seeds.add(key);
+                seeds.put(key, in);
             }
         }
         if (recycled.isEmpty()) {
             return PatternInfo.NONE;
         }
-        return new PatternInfo(Map.copyOf(net), Set.copyOf(recycled), Set.copyOf(seeds));
+        return new PatternInfo(Map.copyOf(net), Map.copyOf(produced),
+                Set.copyOf(recycled), Map.copyOf(seeds));
     }
 
     private static long safeMultiply(long a, long b) {
@@ -193,19 +203,19 @@ public final class LoopCoreManager {
         return false;
     }
 
-    /** 计划里所有循环配方需要的“种子”（每个 key 一对）。 */
-    public static Set<AEKey> loopSeeds(@Nullable ICraftingPlan plan) {
+    /** 计划里所有循环配方需要的“种子”（同一 key 取各配方所需的最大值）。 */
+    public static Map<AEKey, Long> loopSeeds(@Nullable ICraftingPlan plan) {
         if (plan == null || plan.simulation() || !plan.missingItems().isEmpty()) {
-            return Set.of();
+            return Map.of();
         }
-        Set<AEKey> seeds = new LinkedHashSet<>();
+        Map<AEKey, Long> seeds = new LinkedHashMap<>();
         for (Map.Entry<IPatternDetails, Long> entry : plan.patternTimes().entrySet()) {
             if (entry.getValue() == null || entry.getValue() <= 0L) {
                 continue;
             }
             PatternInfo info = analyze(entry.getKey());
-            if (info.isLoop()) {
-                seeds.addAll(info.seeds());
+            for (Map.Entry<AEKey, Long> seed : info.seeds().entrySet()) {
+                seeds.merge(seed.getKey(), seed.getValue(), Math::max);
             }
         }
         return seeds;
@@ -219,7 +229,7 @@ public final class LoopCoreManager {
         if (plan == null || !gridHasLoopCore(grid)) {
             return;
         }
-        Set<AEKey> seeds = loopSeeds(plan);
+        Map<AEKey, Long> seeds = loopSeeds(plan);
         if (seeds.isEmpty()) {
             return;
         }
@@ -227,8 +237,8 @@ public final class LoopCoreManager {
             return;
         }
         KeyCounter used = plan.usedItems();
-        for (AEKey seed : seeds) {
-            used.add(seed, 1L);
+        for (Map.Entry<AEKey, Long> seed : seeds.entrySet()) {
+            used.add(seed.getKey(), seed.getValue());
         }
     }
 }

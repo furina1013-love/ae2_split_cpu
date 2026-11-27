@@ -1,5 +1,7 @@
 package cn.furina.ae2split.mixin;
 
+import java.util.Map;
+
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -67,8 +69,8 @@ public abstract class CraftingTreeNodeMixin implements LoopNodeAccess {
             return;
         }
         // 种子不在库存时不要放行：否则子节点会再次挂上同一配方，规划阶段无限递归。
-        for (AEKey seed : info.seeds()) {
-            if (!calc.ae2split$hasStock(seed, 1L)) {
+        for (Map.Entry<AEKey, Long> seed : info.seeds().entrySet()) {
+            if (!calc.ae2split$hasStock(seed.getKey(), seed.getValue())) {
                 return;
             }
         }

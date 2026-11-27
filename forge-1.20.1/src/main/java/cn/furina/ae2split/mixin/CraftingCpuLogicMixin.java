@@ -34,8 +34,9 @@ public abstract class CraftingCpuLogicMixin {
             }
             // 规划后被拆掉了循环核心：按“缺少循环种子”拒绝，而不是提交一个永远卡住的任务。
             if (!LoopCoreManager.gridHasLoopCore(grid)) {
+                var first = seeds.entrySet().iterator().next();
                 cir.setReturnValue(CraftingSubmitResult
-                        .missingIngredient(new GenericStack(seeds.iterator().next(), 1L)));
+                        .missingIngredient(new GenericStack(first.getKey(), first.getValue())));
                 return;
             }
             LoopCoreManager.addLoopSeeds(grid, plan);

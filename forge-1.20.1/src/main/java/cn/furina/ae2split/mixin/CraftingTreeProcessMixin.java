@@ -77,8 +77,8 @@ public abstract class CraftingTreeProcessMixin {
             return;
         }
         // 没有种子就不放行循环：否则会规划出一个提交时必然缺料、或执行时永远卡住的计划。
-        for (AEKey seed : info.seeds()) {
-            if (!calc.ae2split$hasStock(seed, 1L)) {
+        for (Map.Entry<AEKey, Long> seed : info.seeds().entrySet()) {
+            if (!calc.ae2split$hasStock(seed.getKey(), seed.getValue())) {
                 return;
             }
         }
@@ -109,10 +109,14 @@ public abstract class CraftingTreeProcessMixin {
             nodeAccess.ae2split$requestNode(inv, entry.getValue() * times, null);
         }
 
-        // 只写净产出，避免把“借来的种子”重复计入。
-        for (Map.Entry<AEKey, Long> entry : this.ae2split$info.netPerCraft().entrySet()) {
-            if (entry.getValue() > 0L) {
-                inv.insert(entry.getKey(), entry.getValue() * times, Actionable.MODULATE);
+        // 循环 key 只写净产出（种子不重复计入）；其它输出按原配方毛产出写入。
+        for (Map.Entry<AEKey, Long> entry : this.ae2split$info.grossOutputs().entrySet()) {
+            AEKey key = entry.getKey();
+            long perCraft = this.ae2split$info.recycled().contains(key)
+                    ? Math.max(0L, this.ae2split$info.netFor(key))
+                    : entry.getValue();
+            if (perCraft > 0L) {
+                inv.insert(key, perCraft * times, Actionable.MODULATE);
             }
         }
 

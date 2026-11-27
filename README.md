@@ -10,7 +10,7 @@
 ![AE2](https://img.shields.io/badge/AE2-15.4.x%20%7C%2019.2.x-2E7CC4?style=flat-square)
 ![Build](https://github.com/furina1013-love/ae2_split_cpu/actions/workflows/build.yml/badge.svg)
 ![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square)
-![Release](https://img.shields.io/badge/Release-v1.2.1-success?style=flat-square)
+![Release](https://img.shields.io/badge/Release-v1.2.2-success?style=flat-square)
 
 [下载](https://github.com/furina1013-love/ae2_split_cpu/releases/latest) · [配置](#配置) · [从源码构建](#从源码构建) · [原理](#实现原理)
 
@@ -57,8 +57,8 @@ AE2 终端 → CPU 状态页
 
 | 游戏版本 | 加载器 | 需要的 AE2 | 下载的 jar |
 |---|---|---|---|
-| **1.21.1** | NeoForge 21.1.x | AE2 **19.2.x** | `ae2-split-cpu-1.2.1-neoforge-1.21.1.jar` |
-| **1.20.1** | Forge 47.x | AE2 **15.4.x** | `ae2-split-cpu-1.2.1-forge-1.20.1.jar` |
+| **1.21.1** | NeoForge 21.1.x | AE2 **19.2.x** | `ae2-split-cpu-1.2.2-neoforge-1.21.1.jar` |
+| **1.20.1** | Forge 47.x | AE2 **15.4.x** | `ae2-split-cpu-1.2.2-forge-1.20.1.jar` |
 
 1. 按上表下载对应版本的 jar，丢进 `mods/` 文件夹
 2. 安装对应版本的 **Applied Energistics 2**（必须，模组不内置）
@@ -108,13 +108,14 @@ E R E        E = 工程处理器  (ae2:engineering_processor)
 ```
 
 原版 AE2 会把这种配方当成“递归/缺料”直接拒绝。装上循环核心后，规划器把它当成 **净配方**：
-每执行一次净产出 `+1 a`、净消耗 `+1 b`；执行时只需要 **1 个 a 作为种子** 在 CPU 里循环，
+每执行一次净产出 `+1 a`、净消耗 `+1 b`；执行时 CPU 里需要 **足够启动一次配方的 a 作为种子**（`a+b=2a` 是 1 个 a；`2a+b=3a` 是 2 个 a），
 任务结束后种子作为余料自动退回网络（“借用后归还，不计入消耗”）。
 
 使用条件与步骤：
 
 1. 在任意一台 CPU 的多方块结构里放至少 1 个循环核心（和分裂元件一样占一个单元位置）。
-2. 网络里先准备 **至少 1 个循环物品本身**（上例是 1 个 a）作为种子，否则下单会报缺料。
+2. 网络里先准备 **足够启动一次配方的循环物品**（上例是 1 个 a）作为种子，否则下单会报缺料。
+   种子数量 = 配方一次执行消耗的循环物品数，不是固定 1 个。
 3. 正常在终端里下单循环物品即可；CPU 会按净配方执行，产物 = 下单数量。
 
 合成：
@@ -189,7 +190,7 @@ E R E        S = 分裂元件      (ae2_split_cpu:split_component)
 #    b. 或构建时传路径：-Pae2Jar=/path/to/appliedenergistics2-19.2.19.jar
 # 2) 构建
 ./gradlew build
-# 产物：build/libs/ae2-split-cpu-1.2.1.jar
+# 产物：build/libs/ae2-split-cpu-1.2.2.jar
 ```
 
 不想自己编译？直接用 [Releases](https://github.com/furina1013-love/ae2_split_cpu/releases/latest) 里的 jar。
@@ -218,8 +219,8 @@ E R E        S = 分裂元件      (ae2_split_cpu:split_component)
 - 本模组依赖 Mixin 修改 AE2 内部类，AE2 大版本升级（19.2 → 19.3+）后需要重新核对签名。
 - 循环核心目前只处理 **单配方直接自循环**（输入与输出含同一个 key）。跨多个配方的循环
   （`a -> b -> a`）仍会按缺料处理；完整的多配方循环求解可参考 Eco AE Extension 的 cycle solver。
-- 每个循环 key 每次下单只注入 **1 个种子**，因此同一循环同时只有 1 个配方在跑（吞吐受配方耗时限制）。
-  种子越多并不能自动提速；如果配方本身有多个输出/副产物，副产物会按普通余料退回网络。
+- 每个循环 key 每次下单只注入 **一次配方所需的输入量** 作为种子，因此同一循环同时只有 1 个配方在跑（吞吐受配方耗时限制）。
+  种子越多并不会自动提速；如果配方本身有多个输出/副产物，副产物会按普通余料退回网络。
 - 循环配方若带容器物品（桶等），容器返还不会计入规划；这类配方请在普通 CPU 上使用。
 
 ## 许可证
