@@ -1,5 +1,22 @@
 {
   "block.ae2_split_cpu.split_component": "Split Component",
   "block.ae2_split_cpu.loop_core": "Loop Core",
-  "itemGroup.ae2_split_cpu": "AE2 Split CPU"
+  "itemGroup.ae2_split_cpu": "AE2 Split CPU",
+  "ae2_split_cpu.configuration.title": "AE2 Split CPU",
+  "ae2_split_cpu.configuration.section.ae2.split.cpu.common.toml": "Common Settings",
+  "ae2_split_cpu.configuration.section.ae2.split.cpu.common.toml.title": "AE2 Split CPU Settings",
+  "ae2_split_cpu.configuration.split.enableSplitting": "Enable Splitting",
+  "ae2_split_cpu.configuration.split.enableSplitting.tooltip": "Master switch. When disabled, crafting CPUs never split and behave like vanilla AE2.",
+  "ae2_split_cpu.configuration.split.requireSplitComponent": "Require Split Component",
+  "ae2_split_cpu.configuration.split.requireSplitComponent.tooltip": "Require at least one Split Component block inside the CPU multiblock before it may split.",
+  "ae2_split_cpu.configuration.split.maxSplits": "Max Splits",
+  "ae2_split_cpu.configuration.split.maxSplits.tooltip": "Maximum number of virtual sub-CPUs per master CPU (not counting the master), 0 disables splitting.",
+  "ae2_split_cpu.configuration.split.parallelScheme": "Parallel Scheme",
+  "ae2_split_cpu.configuration.split.parallelScheme.tooltip": "EQUAL = even share (default); PROPORTIONAL = by job bytes; ALL = everything to the newest job; FIXED = fixed value.",
+  "ae2_split_cpu.configuration.split.fixedParallel": "Fixed Parallel",
+  "ae2_split_cpu.configuration.split.fixedParallel.tooltip": "Threads per sub-CPU when parallelScheme = FIXED.",
+  "ae2_split_cpu.configuration.split.minParallel": "Minimum Parallel",
+  "ae2_split_cpu.configuration.split.minParallel.tooltip": "Lower bound of threads for any scheme.",
+  "ae2_split_cpu.configuration.split.loopCoreStorageBytes": "Loop Core Storage Bytes",
+  "ae2_split_cpu.configuration.split.loopCoreStorageBytes.tooltip": "Storage bytes provided by one Loop Core. AE2 only forms a CPU if at least one unit has more than 0 bytes; default 1, set 0 to require a separate storage unit."
 }

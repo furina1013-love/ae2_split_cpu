@@ -1,5 +1,22 @@
 {
   "block.ae2_split_cpu.split_component": "分裂元件",
   "block.ae2_split_cpu.loop_core": "循环核心",
-  "itemGroup.ae2_split_cpu": "AE2 分裂 CPU"
+  "itemGroup.ae2_split_cpu": "AE2 分裂 CPU",
+  "ae2_split_cpu.configuration.title": "AE2 分裂 CPU",
+  "ae2_split_cpu.configuration.section.ae2.split.cpu.common.toml": "常规设置",
+  "ae2_split_cpu.configuration.section.ae2.split.cpu.common.toml.title": "AE2 分裂 CPU 设置",
+  "ae2_split_cpu.configuration.split.enableSplitting": "启用分裂",
+  "ae2_split_cpu.configuration.split.enableSplitting.tooltip": "总开关：关闭后 CPU 永不分裂，行为等同原版 AE2。",
+  "ae2_split_cpu.configuration.split.requireSplitComponent": "需要分裂元件",
+  "ae2_split_cpu.configuration.split.requireSplitComponent.tooltip": "是否要求 CPU 结构中包含至少一个分裂元件才允许分裂。",
+  "ae2_split_cpu.configuration.split.maxSplits": "最大分裂数",
+  "ae2_split_cpu.configuration.split.maxSplits.tooltip": "每个主 CPU 最多分裂出的子 CPU 数量（不含主 CPU），0 表示禁止分裂。",
+  "ae2_split_cpu.configuration.split.parallelScheme": "并行分配方案",
+  "ae2_split_cpu.configuration.split.parallelScheme.tooltip": "EQUAL = 平均分配（默认）；PROPORTIONAL = 按订单字节比例；ALL = 全部给最新的订单；FIXED = 固定值。",
+  "ae2_split_cpu.configuration.split.fixedParallel": "固定并行数",
+  "ae2_split_cpu.configuration.split.fixedParallel.tooltip": "parallelScheme = FIXED 时，每个子 CPU 固定拿到的并行数。",
+  "ae2_split_cpu.configuration.split.minParallel": "最小并行数",
+  "ae2_split_cpu.configuration.split.minParallel.tooltip": "任何并行方案下，子 CPU 至少拿到的并行数。",
+  "ae2_split_cpu.configuration.split.loopCoreStorageBytes": "循环核心存储字节",
+  "ae2_split_cpu.configuration.split.loopCoreStorageBytes.tooltip": "每个循环核心自带的存储字节。AE2 要求 CPU 里至少一个单元大于 0 字节才会成型；默认 1，设为 0 则必须另配存储单元。"
 }

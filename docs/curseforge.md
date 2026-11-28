@@ -48,8 +48,8 @@ The total handed out never exceeds what the master CPU actually has, and a job i
 
 | Minecraft | Loader | AE2 | File |
 | --- | --- | --- | --- |
-| 1.21.1 | NeoForge 21.1.x | 19.2.x | `ae2-split-cpu-1.2.3-neoforge-1.21.1.jar` |
-| 1.20.1 | Forge 47.x | 15.4.x | `ae2-split-cpu-1.2.3-forge-1.20.1.jar` |
+| 1.21.1 | NeoForge 21.1.x | 19.2.x | `ae2-split-cpu-1.2.4-neoforge-1.21.1.jar` |
+| 1.20.1 | Forge 47.x | 15.4.x | `ae2-split-cpu-1.2.4-forge-1.20.1.jar` |
 
 ## Known behaviour
 

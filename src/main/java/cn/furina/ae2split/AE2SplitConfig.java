@@ -34,30 +34,37 @@ public final class AE2SplitConfig {
 
         ENABLE_SPLITTING = BUILDER
                 .comment("Master switch. When false, crafting CPUs never split. / 总开关：关闭后 CPU 永不分裂。")
+                .translation("ae2_split_cpu.configuration.split.enableSplitting")
                 .define("enableSplitting", true);
 
         REQUIRE_SPLIT_COMPONENT = BUILDER
                 .comment("Require the CPU multiblock to contain at least one split component block. / 是否要求 CPU 结构中包含分裂元件。")
+                .translation("ae2_split_cpu.configuration.split.requireSplitComponent")
                 .define("requireSplitComponent", true);
 
         MAX_SPLITS = BUILDER
                 .comment("Maximum number of virtual sub-CPUs per crafting CPU (0 disables splitting). / 每个主 CPU 最多分裂出的子 CPU 数量（0 表示禁止分裂）。")
+                .translation("ae2_split_cpu.configuration.split.maxSplits")
                 .defineInRange("maxSplits", 3, 0, 64);
 
         PARALLEL_SCHEME = BUILDER
                 .comment("How co-processor threads are distributed to sub-CPUs: EQUAL (default, even share) / PROPORTIONAL / ALL / FIXED. / 并行分配方案：EQUAL(默认，平均分) / PROPORTIONAL(按字节比例) / ALL / FIXED。")
+                .translation("ae2_split_cpu.configuration.split.parallelScheme")
                 .defineEnum("parallelScheme", ParallelScheme.EQUAL);
 
         FIXED_PARALLEL = BUILDER
                 .comment("Threads per sub-CPU when parallelScheme = FIXED. / FIXED 方案下每个子 CPU 的并行数。")
+                .translation("ae2_split_cpu.configuration.split.fixedParallel")
                 .defineInRange("fixedParallel", 1, 0, 64);
 
         MIN_PARALLEL = BUILDER
                 .comment("Lower bound of threads for any scheme. / 任何方案下子 CPU 的并行下限。")
+                .translation("ae2_split_cpu.configuration.split.minParallel")
                 .defineInRange("minParallel", 1, 0, 64);
 
         LOOP_CORE_STORAGE = BUILDER
                 .comment("Storage bytes provided by one Loop Core. AE2 only forms a CPU if at least one unit has >0 bytes, so the default 1 lets a CPU made only of markers connect; set 0 for a pure marker. / 循环核心自带的存储字节。AE2 要求 CPU 里至少有一个 >0 字节的单元才会成型，默认 1 让纯标记 CPU 也能成型连网；设为 0 变回纯标记。")
+                .translation("ae2_split_cpu.configuration.split.loopCoreStorageBytes")
                 .defineInRange("loopCoreStorageBytes", 1, 0, 1024);
 
         BUILDER.pop();
