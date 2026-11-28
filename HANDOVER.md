@@ -1,11 +1,12 @@
 # 交接文档 —— AE2 Split CPU
 
-> 给下一个接手的人 / 给未来的自己。最后更新：v1.2.2（2026-11）。
+> 给下一个接手的人 / 给未来的自己。最后更新：v1.2.3（2026-11）。
 > 项目：<https://github.com/furina1013-love/ae2_split_cpu>
-> 当前版本：**1.2.2**，双平台：MC 1.21.1 + NeoForge 21.1.x ／ MC 1.20.1 + Forge 47.x。
+> 当前版本：**1.2.3**，双平台：MC 1.21.1 + NeoForge 21.1.x ／ MC 1.20.1 + Forge 47.x。
 > 1.2.0 新增：分裂元件“有效 CPU”闪烁点、循环核心（自循环配方 `a+b=2a`）。
 > 1.2.1 修复：无种子时 `notRecursive` 放行导致规划阶段递归；Forge jar 元数据版本 1.2.0。
 > 1.2.2 修复：种子数量按“一次配方输入量”计算（如 2a+b=3a 需要 2 个 a），净亏 key 写毛产出。
+> 1.2.3 修复：循环核心“无法接入/连网”的观感与成型问题——注册闪烁点、默认 1 字节存储、1.21.1 右键升级配方。
 
 ---
 
@@ -188,6 +189,9 @@ pkill -x mihomo                                     # 停止
 关键约束：
 
 - **规划期就需要足够的种子在库存里**（`hasStock` 检查；数量 = 配方一次执行的输入量）。否则规划按原版失败/缺料，避免出现“计划成功、提交必卡”的状态。
+- **成型要求**：AE2 的 `verifyInternalStructure` 要求 CPU 的 AABB 内至少一个单元 `getStorageBytes() > 0`。循环核心默认提供 1 字节（`loopCoreStorageBytes`，0–1024），因此“循环核心 + 分裂元件”也能成型；设为 0 时纯标记，必须另配 storage。
+- **视觉反馈**：循环核心与分裂元件共用 `SplitComponentRenderer`，成型即显示呼吸点；没亮 = 没进成型 CPU。
+- **1.21.1 右键升级**：`data/ae2_split_cpu/recipe/crafting_unit_upgrade/loop_core.json` 把基础合成单元右键换成循环核心（1.20.1 的 AE2 15.4 没有 `CraftingUnitTransformRecipe`，只能放置）。
 - 只支持 **单配方直接自循环**；多配方环（`a→b→a`）仍无解，参考 Eco AE Extension 的 cycle solver。
 - 每个 key 每次下单只注入一次配方的输入量 → 同一循环串行执行；要提速得改 `LoopCoreManager.addLoopSeeds` 的种子数量与执行并发策略。
 - 循环配方带容器物品（桶等）时，`request` 里传 `null`，容器返还不会进模拟；这类配方别用循环核心。
@@ -245,7 +249,7 @@ pkill -x mihomo                                     # 停止
 
 ## 9. 待办
 
-1. 拿到**真正的 CurseForge API key**（`$2a$10$...`）→ 用 `tools/cf_upload.py` 或 GitHub Actions（runner 出口可通）建项目 + 传 1.2.2 两个 jar。
+1. 拿到**真正的 CurseForge API key**（`$2a$10$...`）→ 用 `tools/cf_upload.py` 或 GitHub Actions（runner 出口可通）建项目 + 传 1.2.3 两个 jar。
 2. mcmod 建条目：用 `docs/mcmod.md` + `cover/logo-256.png`。
 3. 旧存档兼容提示（modid 变更史：`ae2_split_cpu` → 1.1.0 的 `ae2-split-cpu` → 1.1.1 回到 `ae2_split_cpu`）已在 Release 里说明。
 4. 可选优化：CPU 监视器显示子 CPU、子 CPU 命名可配、`CHILDREN` 用弱引用清理。

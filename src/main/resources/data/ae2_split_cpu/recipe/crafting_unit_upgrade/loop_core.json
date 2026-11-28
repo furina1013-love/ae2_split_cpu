@@ -1,0 +1,5 @@
+{
+  "type": "ae2:crafting_unit_transform",
+  "upgrade_item": "ae2_split_cpu:loop_core",
+  "upgraded_block": "ae2_split_cpu:loop_core"
+}

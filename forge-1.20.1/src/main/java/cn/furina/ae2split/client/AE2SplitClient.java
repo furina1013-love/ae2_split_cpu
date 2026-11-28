@@ -22,5 +22,8 @@ public final class AE2SplitClient {
     public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerBlockEntityRenderer(AE2SplitBlocks.SPLIT_COMPONENT_BE.get(),
                 context -> new SplitComponentRenderer());
+        // 循环核心同样用这套“成型点亮”指示，避免玩家无法判断它有没有接进有效 CPU。
+        event.registerBlockEntityRenderer(AE2SplitBlocks.LOOP_CORE_BE.get(),
+                context -> new SplitComponentRenderer());
     }
 }

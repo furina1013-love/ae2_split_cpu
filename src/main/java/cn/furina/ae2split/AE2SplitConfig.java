@@ -24,6 +24,8 @@ public final class AE2SplitConfig {
     public static final ModConfigSpec.IntValue FIXED_PARALLEL;
     /** 任何方案下子 CPU 至少拿到的并行数（0 表示允许不分配并行）。 */
     public static final ModConfigSpec.IntValue MIN_PARALLEL;
+    /** 循环核心自身提供的存储字节；>0 时仅含循环核心的 CPU 也能成型并连网。 */
+    public static final ModConfigSpec.IntValue LOOP_CORE_STORAGE;
 
     public static final ModConfigSpec SPEC;
 
@@ -53,6 +55,10 @@ public final class AE2SplitConfig {
         MIN_PARALLEL = BUILDER
                 .comment("Lower bound of threads for any scheme. / 任何方案下子 CPU 的并行下限。")
                 .defineInRange("minParallel", 1, 0, 64);
+
+        LOOP_CORE_STORAGE = BUILDER
+                .comment("Storage bytes provided by one Loop Core. AE2 only forms a CPU if at least one unit has >0 bytes, so the default 1 lets a CPU made only of markers connect; set 0 for a pure marker. / 循环核心自带的存储字节。AE2 要求 CPU 里至少有一个 >0 字节的单元才会成型，默认 1 让纯标记 CPU 也能成型连网；设为 0 变回纯标记。")
+                .defineInRange("loopCoreStorageBytes", 1, 0, 1024);
 
         BUILDER.pop();
         SPEC = BUILDER.build();
