@@ -92,10 +92,26 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+
       - uses: actions/download-artifact@v4
         with:
           path: dist
           merge-multiple: true
+
+      - name: Extract release notes from CHANGELOG.md
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          python3 - "$VERSION" <<'PY'
+          import re, sys
+          ver = sys.argv[1]
+          text = open('CHANGELOG.md', encoding='utf-8').read()
+          pattern = r'(?ms)^## \[' + re.escape(ver) + r'\].*?(?=^## \[|\Z)'
+          match = re.search(pattern, text)
+          body = match.group(0).strip() if match else '## ' + ver + '\n\n详见 CHANGELOG.md'
+          open('release-notes.md', 'w', encoding='utf-8').write(body + '\n')
+          PY
+          cat release-notes.md
 
       - name: List jars
         run: ls -la dist
@@ -104,6 +120,7 @@ jobs:
         with:
           files: dist/*.jar
           name: AE2 Split CPU ${{ github.ref_name }}
+          body_path: release-notes.md
           draft: false
           prerelease: false
 

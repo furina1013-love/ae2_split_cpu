@@ -12,7 +12,7 @@
 ![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square)
 ![Release](https://img.shields.io/badge/Release-v1.2.4-success?style=flat-square)
 
-[下载](https://github.com/furina1013-love/ae2_split_cpu/releases/latest) · [配置](#配置) · [从源码构建](#从源码构建) · [原理](#实现原理)
+[下载](https://github.com/furina1013-love/ae2_split_cpu/releases/latest) · [更新记录](CHANGELOG.md) · [配置](#配置) · [从源码构建](#从源码构建) · [原理](#实现原理)
 
 </div>
 
