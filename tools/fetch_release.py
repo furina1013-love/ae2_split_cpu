@@ -71,6 +71,9 @@ def main() -> int:
 
     latest = DIST / "latest"
     latest.mkdir(parents=True, exist_ok=True)
+    # latest 只保留最新一版，避免新旧 jar 混在一起。
+    for old in latest.glob("*.jar"):
+        old.unlink()
     for jar in target.glob("*.jar"):
         dest = latest / jar.name
         dest.write_bytes(jar.read_bytes())
