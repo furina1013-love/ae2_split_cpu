@@ -20,6 +20,7 @@ import appeng.api.stacks.KeyCounter;
 import appeng.blockentity.crafting.CraftingBlockEntity;
 import appeng.me.cluster.implementations.CraftingCPUCluster;
 
+import cn.furina.ae2split.AE2SplitConfig;
 import cn.furina.ae2split.content.LoopCoreBlock;
 
 /**
@@ -182,6 +183,39 @@ public final class LoopCoreManager {
         return false;
     }
 
+    /** 配置：执行循环配方是否必须由含循环核心的 CPU 执行。 */
+    public static boolean requireLoopCore() {
+        try {
+            return AE2SplitConfig.REQUIRE_LOOP_CORE.get();
+        } catch (RuntimeException e) {
+            return true;
+        }
+    }
+
+    /** 规划阶段是否允许出现循环配方（requireLoopCore=false 时无需循环核心）。 */
+    public static boolean loopCraftingAllowed(@Nullable IGrid grid) {
+        return !requireLoopCore() || gridHasLoopCore(grid);
+    }
+
+    /** CPU（含分裂子 CPU 的主 CPU）是否含循环核心。 */
+    public static boolean cpuHasLoopCore(@Nullable CraftingCPUCluster cpu) {
+        if (cpu == null) {
+            return false;
+        }
+        if (hasLoopCore(cpu)) {
+            return true;
+        }
+        try {
+            if ((Object) cpu instanceof SplitCpuHandle handle) {
+                CraftingCPUCluster parent = handle.ae2split$getParent();
+                return parent != null && hasLoopCore(parent);
+            }
+        } catch (RuntimeException ignored) {
+            // 拆解中的子 CPU：按没有循环核心处理。
+        }
+        return false;
+    }
+
     /** 该网格里是否至少有一个成型的、含循环核心的 CPU。 */
     public static boolean gridHasLoopCore(@Nullable IGrid grid) {
         if (grid == null) {
@@ -225,8 +259,8 @@ public final class LoopCoreManager {
      * 下单前给计划补“循环种子”：把种子加进 {@code usedItems}，CPU 提交任务时会把它从网络
      * 抽进自己的库存；任务结束后余料（含种子）由 AE2 自动退回网络。
      */
-    public static void addLoopSeeds(@Nullable IGrid grid, @Nullable ICraftingPlan plan) {
-        if (plan == null || !gridHasLoopCore(grid)) {
+    public static void addLoopSeeds(@Nullable ICraftingPlan plan) {
+        if (plan == null) {
             return;
         }
         Map<AEKey, Long> seeds = loopSeeds(plan);

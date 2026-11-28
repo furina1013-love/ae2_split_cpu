@@ -76,7 +76,7 @@ public final class AE2SplitBlocks {
 
     /** 方块物品：ae2_split_cpu:loop_core。 */
     public static final RegistryObject<Item> LOOP_CORE_ITEM = ITEMS.register("loop_core",
-            () -> new BlockItem(LOOP_CORE.get(), new Item.Properties()));
+            () -> new cn.furina.ae2split.content.LoopCoreItem(LOOP_CORE.get(), new Item.Properties()));
 
     /** 循环核心的方块实体类型：复用 AE2 的 CraftingBlockEntity，并把类型反向注入方块的工厂。 */
     public static final RegistryObject<BlockEntityType<CraftingBlockEntity>> LOOP_CORE_BE = BLOCK_ENTITY_TYPES

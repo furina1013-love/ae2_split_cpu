@@ -18,5 +18,7 @@
   "ae2_split_cpu.configuration.split.minParallel": "Minimum Parallel",
   "ae2_split_cpu.configuration.split.minParallel.tooltip": "Lower bound of threads for any scheme.",
   "ae2_split_cpu.configuration.split.loopCoreStorageBytes": "Loop Core Storage Bytes",
-  "ae2_split_cpu.configuration.split.loopCoreStorageBytes.tooltip": "Storage bytes provided by one Loop Core. AE2 only forms a CPU if at least one unit has more than 0 bytes; default 1, set 0 to require a separate storage unit."
+  "ae2_split_cpu.configuration.split.loopCoreStorageBytes.tooltip": "Storage bytes provided by one Loop Core. Default 0: it is a gate, not storage; the CPU still needs a real storage unit. Set >0 only if you want a marker-only CPU to form.",
+  "ae2_split_cpu.configuration.split.requireLoopCore": "Require Loop Core",
+  "ae2_split_cpu.configuration.split.requireLoopCore.tooltip": "When true, only a CPU containing a Loop Core may execute loop recipes; set false to allow any CPU."
 }

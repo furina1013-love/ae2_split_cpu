@@ -26,6 +26,8 @@ public final class AE2SplitConfig {
     public static final ForgeConfigSpec.IntValue MIN_PARALLEL;
     /** 循环核心自身提供的存储字节；>0 时仅含循环核心的 CPU 也能成型并连网。 */
     public static final ForgeConfigSpec.IntValue LOOP_CORE_STORAGE;
+    /** 执行循环配方是否必须由含循环核心的 CPU 执行。 */
+    public static final ForgeConfigSpec.BooleanValue REQUIRE_LOOP_CORE;
 
     public static final ForgeConfigSpec SPEC;
 
@@ -63,9 +65,14 @@ public final class AE2SplitConfig {
                 .defineInRange("minParallel", 1, 0, 64);
 
         LOOP_CORE_STORAGE = BUILDER
-                .comment("Storage bytes provided by one Loop Core. AE2 only forms a CPU if at least one unit has >0 bytes, so the default 1 lets a CPU made only of markers connect; set 0 for a pure marker. / 循环核心自带的存储字节。AE2 要求 CPU 里至少有一个 >0 字节的单元才会成型，默认 1 让纯标记 CPU 也能成型连网；设为 0 变回纯标记。")
+                .comment("Storage bytes provided by one Loop Core. Default 0: the Loop Core is a gate, not storage; the CPU still needs a real storage unit. Set >0 only if you want a marker-only CPU to form. / 循环核心自带的存储字节。默认 0：它只是执行循环配方的门槛，不承担存储，CPU 仍需真正的 storage 单元；设为 >0 仅用于让纯标记 CPU 也能成型。")
                 .translation("ae2_split_cpu.configuration.split.loopCoreStorageBytes")
-                .defineInRange("loopCoreStorageBytes", 1, 0, 1024);
+                .defineInRange("loopCoreStorageBytes", 0, 0, 1024);
+
+        REQUIRE_LOOP_CORE = BUILDER
+                .comment("Require the executing CPU to contain a Loop Core before it may run loop recipes. / 执行循环配方是否要求目标 CPU 内含有循环核心。")
+                .translation("ae2_split_cpu.configuration.split.requireLoopCore")
+                .define("requireLoopCore", true);
 
         BUILDER.pop();
         SPEC = BUILDER.build();

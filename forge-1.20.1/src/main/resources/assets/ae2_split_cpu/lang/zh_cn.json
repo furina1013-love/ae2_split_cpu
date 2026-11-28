@@ -18,5 +18,7 @@
   "ae2_split_cpu.configuration.split.minParallel": "最小并行数",
   "ae2_split_cpu.configuration.split.minParallel.tooltip": "任何并行方案下，子 CPU 至少拿到的并行数。",
   "ae2_split_cpu.configuration.split.loopCoreStorageBytes": "循环核心存储字节",
-  "ae2_split_cpu.configuration.split.loopCoreStorageBytes.tooltip": "每个循环核心自带的存储字节。AE2 要求 CPU 里至少一个单元大于 0 字节才会成型；默认 1，设为 0 则必须另配存储单元。"
+  "ae2_split_cpu.configuration.split.loopCoreStorageBytes.tooltip": "循环核心自带的存储字节。默认 0：它只是执行循环配方的门槛，不承担存储，CPU 仍需真正的 storage 单元；设为大于 0 仅用于让纯标记 CPU 也能成型。",
+  "ae2_split_cpu.configuration.split.requireLoopCore": "需要循环核心",
+  "ae2_split_cpu.configuration.split.requireLoopCore.tooltip": "为 true 时，只有结构内含循环核心的 CPU 才会执行循环配方；设为 false 则任何 CPU 都可以执行。"
 }

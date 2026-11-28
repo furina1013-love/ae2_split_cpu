@@ -16,12 +16,13 @@ public class LoopCoreType implements ICraftingUnitType {
 
     @Override
     public long getStorageBytes() {
-        // 默认 1 字节：AE2 只有“至少一个 >0 字节单元”的 CPU 才会成型/连网。
-        // 设为 0 可恢复纯标记行为（此时必须配合其它 storage 单元）。
+        // 默认 0 字节：循环核心只做“是否允许执行循环配方”的门槛，不承担存储。
+        // 若希望仅含标记块的 CPU 也能成型，可把 loopCoreStorageBytes 调成 >0。
         try {
-            return AE2SplitConfig.LOOP_CORE_STORAGE.get();
-        } catch (IllegalStateException e) {
-            return 0L; // 配置尚未加载（例如注册阶段）时安全降级。
+            return Math.max(0L, AE2SplitConfig.LOOP_CORE_STORAGE.get());
+        } catch (RuntimeException e) {
+            // 配置尚未加载/读取异常时绝不能抛出：AE2 的成型校验会因此认定 CPU 无效。
+            return 0L;
         }
     }
 
@@ -33,7 +34,11 @@ public class LoopCoreType implements ICraftingUnitType {
 
     @Override
     public Item getItemFromType() {
-        // 延迟调用，此时注册表已就绪。
-        return AE2SplitBlocks.LOOP_CORE_ITEM.get();
+        // 延迟调用，此时注册表已就绪；极端情况下也不能抛异常，否则 onReady 会中断、CPU 无法成型。
+        try {
+            return AE2SplitBlocks.LOOP_CORE_ITEM.get();
+        } catch (RuntimeException e) {
+            return net.minecraft.world.item.Items.AIR;
+        }
     }
 }

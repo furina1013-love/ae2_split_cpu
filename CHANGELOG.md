@@ -2,6 +2,13 @@
 
 所有版本的双平台 jar 在 GitHub Releases 页面：<https://github.com/furina1013-love/ae2_split_cpu/releases>
 
+## [1.2.5] - 2026-11-29
+
+### 循环核心语义修正（门槛而非存储）
+- `loopCoreStorageBytes` 默认改为 **0**：循环核心只作为“允许执行循环配方”的门槛，不再承担存储；CPU 仍需真正的 storage 单元才能成型。想让纯标记 CPU 也能成型时再调大。
+- 新增配置 `requireLoopCore`（默认 **true**）：只有结构内含循环核心的 CPU（分裂子 CPU 会回查主 CPU）才能执行循环配方；设为 `false` 则任意 CPU 都可执行。
+- `LoopCoreType#getStorageBytes` / `getItemFromType` 不再向 AE2 抛异常（配置未加载等情况下安全降级），避免成型校验或 `onReady` 被中断导致整台 CPU 被判无效。
+- 1.20.1 补循环核心升级/拆回：潜行右键基础合成单元可替换为循环核心；潜行右键空手拆回基础合成单元并获得循环核心物品。1.21.1 继续使用 `ae2:crafting_unit_transform` 配方。
 ## [1.2.4] - 2026-11-28
 
 ### 配置界面汉化

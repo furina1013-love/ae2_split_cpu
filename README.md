@@ -10,7 +10,7 @@
 ![AE2](https://img.shields.io/badge/AE2-15.4.x%20%7C%2019.2.x-2E7CC4?style=flat-square)
 ![Build](https://github.com/furina1013-love/ae2_split_cpu/actions/workflows/build.yml/badge.svg)
 ![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square)
-![Release](https://img.shields.io/badge/Release-v1.2.4-success?style=flat-square)
+![Release](https://img.shields.io/badge/Release-v1.2.5-success?style=flat-square)
 
 [下载](https://github.com/furina1013-love/ae2_split_cpu/releases/latest) · [更新记录](CHANGELOG.md) · [配置](#配置) · [从源码构建](#从源码构建) · [原理](#实现原理)
 
@@ -57,8 +57,8 @@ AE2 终端 → CPU 状态页
 
 | 游戏版本 | 加载器 | 需要的 AE2 | 下载的 jar |
 |---|---|---|---|
-| **1.21.1** | NeoForge 21.1.x | AE2 **19.2.x** | `ae2-split-cpu-1.2.4-neoforge-1.21.1.jar` |
-| **1.20.1** | Forge 47.x | AE2 **15.4.x** | `ae2-split-cpu-1.2.4-forge-1.20.1.jar` |
+| **1.21.1** | NeoForge 21.1.x | AE2 **19.2.x** | `ae2-split-cpu-1.2.5-neoforge-1.21.1.jar` |
+| **1.20.1** | Forge 47.x | AE2 **15.4.x** | `ae2-split-cpu-1.2.5-forge-1.20.1.jar` |
 
 1. 按上表下载对应版本的 jar，丢进 `mods/` 文件夹
 2. 安装对应版本的 **Applied Energistics 2**（必须，模组不内置）
@@ -100,8 +100,8 @@ E R E        E = 工程处理器  (ae2:engineering_processor)
 
 ## 循环核心
 
-`ae2_split_cpu:loop_core`（中文名「循环核心」）—— 默认 **1 字节 / 0 并行** 的 CPU 标记方块
-（`loopCoreStorageBytes` 可调；设为 0 即纯标记），它让 AE2 能规划 **自循环配方**，例如：
+`ae2_split_cpu:loop_core`（中文名「循环核心」）—— 默认 **0 字节 / 0 并行** 的 CPU 标记方块，
+它只是“允许执行循环配方”的门槛，不承担存储；`loopCoreStorageBytes` 可调（>0 可让纯标记 CPU 也成型）。它让 AE2 能规划 **自循环配方**，例如：
 
 ```
 1 a + 1 b  ->  2 a      // 净效果：1 b -> 1 a，a 自己循环
@@ -114,8 +114,8 @@ E R E        E = 工程处理器  (ae2:engineering_processor)
 使用条件与步骤：
 
 1. 在任意一台 CPU 的多方块结构里放至少 1 个循环核心（和分裂元件一样占一个单元位置）。
-   循环核心默认自带 1 字节，所以只放循环核心 + 分裂元件的结构也能成型并连网；
-   若把 `loopCoreStorageBytes` 设为 0，则必须再放至少一个真正的 storage 单元。
+   循环核心默认 0 字节，只做“允许执行循环配方”的门槛，不承担存储；
+   CPU 里必须再放至少一个真正的 storage 单元才能成型。想让纯标记 CPU 也成型，把 `loopCoreStorageBytes` 设为 >0。
    成型后循环核心表面也会显示呼吸闪烁点（和分裂元件一致），没亮就是没进 CPU。
 2. 网络里先准备 **足够启动一次配方的循环物品**（上例是 1 个 a）作为种子，否则下单会报缺料。
    种子数量 = 配方一次执行消耗的循环物品数，不是固定 1 个。
@@ -196,7 +196,7 @@ E R E        S = 分裂元件      (ae2_split_cpu:split_component)
 #    b. 或构建时传路径：-Pae2Jar=/path/to/appliedenergistics2-19.2.19.jar
 # 2) 构建
 ./gradlew build
-# 产物：build/libs/ae2-split-cpu-1.2.4.jar
+# 产物：build/libs/ae2-split-cpu-1.2.5.jar
 ```
 
 不想自己编译？直接用 [Releases](https://github.com/furina1013-love/ae2_split_cpu/releases/latest) 里的 jar。

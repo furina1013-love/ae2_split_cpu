@@ -48,7 +48,7 @@ public abstract class CraftingCalculationMixin implements LoopCalcAccess {
             if (this.simRequester != null) {
                 IGridNode node = this.simRequester.getGridNode();
                 if (node != null) {
-                    enabled = LoopCoreManager.gridHasLoopCore(node.getGrid());
+                    enabled = LoopCoreManager.loopCraftingAllowed(node.getGrid());
                 }
             }
         } catch (RuntimeException ignored) {
